@@ -5,9 +5,15 @@
 #endif
 
 #include "php.h"
+#include "php_ini.h"
+#include "php_main.h"
 #include "ext/standard/info.h"
+
 #include "php_mexti.h"
 #include "mexti_arginfo.h"
+
+#include "minheap/mexti_minheap.h"
+
 
 /* For compatibility with older PHP versions */
 #ifndef ZEND_PARSE_PARAMETERS_NONE
@@ -43,12 +49,28 @@ PHP_FUNCTION(test2)
 }
 /* }}}*/
 
+
+
+PHP_MINIT_FUNCTION(mexti)
+{
+	mexti_ce_ExMinHeap = register_class_ExMinHeap();
+	return SUCCESS;
+}
+
 /* {{{ PHP_RINIT_FUNCTION */
 PHP_RINIT_FUNCTION(mexti)
 {
 #if defined(ZTS) && defined(COMPILE_DL_MEXTI)
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
+
+	return SUCCESS;
+}
+/* }}} */
+
+/* {{{ PHP_RSHUTDOWN_FUNCTION */
+PHP_RSHUTDOWN_FUNCTION(mexti)
+{
 
 	return SUCCESS;
 }
@@ -63,20 +85,24 @@ PHP_MINFO_FUNCTION(mexti)
 }
 /* }}} */
 
-/* {{{ mexti_module_entry */
+
+static const zend_module_dep mexti_deps[] = {
+	ZEND_MOD_END
+};
+
 zend_module_entry mexti_module_entry = {
-	STANDARD_MODULE_HEADER,
-	"mexti",					/* Extension name */
-	ext_functions,					/* zend_function_entry */
-	NULL,							/* PHP_MINIT - Module initialization */
-	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
-	PHP_RINIT(mexti),			/* PHP_RINIT - Request initialization */
-	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
-	PHP_MINFO(mexti),			/* PHP_MINFO - Module info */
-	PHP_MEXTI_VERSION,		/* Version */
+	STANDARD_MODULE_HEADER_EX, NULL,
+	mexti_deps,							/* 模块依赖 */
+	"mexti",							/* 扩展名称 */
+	ext_functions,						/* 模块函数入口 */
+	PHP_MINIT(mexti),					/* 模块初始化 */
+	NULL,								/* 模块卸载 */
+	PHP_RINIT(mexti),					/* 请求初始化 */
+	PHP_RSHUTDOWN(mexti),				/* 请求结束 */
+	PHP_MINFO(mexti),					/* 模块信息 */
+	PHP_MEXTI_VERSION,					/* 模块版本 */
 	STANDARD_MODULE_PROPERTIES
 };
-/* }}} */
 
 #ifdef COMPILE_DL_MEXTI
 # ifdef ZTS

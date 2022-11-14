@@ -90,5 +90,5 @@ if test "$PHP_MEXTI" != "no"; then
   dnl In case of no dependencies
   AC_DEFINE(HAVE_MEXTI, 1, [ Have mexti support ])
 
-  PHP_NEW_EXTENSION(mexti, mexti.c, $ext_shared)
+  PHP_NEW_EXTENSION(mexti, mexti.c minheap/mexti_minheap.c lib/minheap.c, $ext_shared)
 fi

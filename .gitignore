@@ -39,3 +39,7 @@ tests/**/*.sh
 tests/**/*.db
 tests/**/*.mem
 tmp-php.ini
+config.h.in~
+mexti.dep
+*.dep
+*loT

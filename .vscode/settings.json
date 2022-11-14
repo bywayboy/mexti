@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "*.cjson": "jsonc",
+        "*.wxss": "css",
+        "*.wxs": "javascript",
+        "php.h": "c",
+        "php_main.h": "c",
+        "*.tcc": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.libs": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/{Thumbs.db,configure,libtool}": true,
+        "**/*.{in,in~,nice,status,objects,dep,la,lo,log,ac,fragments,cache}": true
+    }
+}
