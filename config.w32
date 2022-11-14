@@ -1,0 +1,7 @@
+ARG_ENABLE('mexti', 'mexti support', 'no');
+
+if (PHP_MEXTI != 'no') {
+	AC_DEFINE('HAVE_MEXTI', 1, 'mexti support enabled');
+
+	EXTENSION('mexti', 'mexti.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
