@@ -4,7 +4,7 @@
 
 #include "minheap.h"
 
-//²Î¿¼:https://github.com/libevent/libevent/blob/master/minheap-internal.h
+//å‚è€ƒ:https://github.com/libevent/libevent/blob/master/minheap-internal.h
 
 static int minheap_reserve_(minheap_t* s, unsigned n);
 static void minheap_shift_up_(minheap_t* s, unsigned hole_index, minheapnode_t * e);
@@ -42,7 +42,7 @@ void minheap_elm_init(minheapnode_t * elm)
 	elm->minheap_idx = -1;
 }
 
-/*½ÚµãÑ¹Èë*/
+/*èŠ‚ç‚¹åŽ‹å…¥*/
 int minheap_push(minheap_t* s, minheapnode_t * e)
 {
 	if (minheap_reserve_(s, s->n + 1))
@@ -51,7 +51,7 @@ int minheap_push(minheap_t* s, minheapnode_t * e)
 	return 0;
 }
 
-/*½Úµãµ¯³ö*/
+/*èŠ‚ç‚¹å¼¹å‡º*/
 minheapnode_t* minheap_pop(minheap_t* s)
 {
 	if (s->n)
@@ -74,7 +74,7 @@ int minheap_elm_inheap(const minheapnode_t * e)
 	return e->minheap_idx != -1;
 }
 
-/* ´Ó×îÐ¡¶ÑÖÐ¸ÉµôÒ»¸ö½Úµã */
+/* ä»Žæœ€å°å †ä¸­å¹²æŽ‰ä¸€ä¸ªèŠ‚ç‚¹ */
 int minheap_erase(minheap_t* s, minheapnode_t* e)
 {
 	if (-1 != e->minheap_idx)
@@ -96,7 +96,7 @@ int minheap_erase(minheap_t* s, minheapnode_t* e)
 	return -1;
 }
 
-/* µ÷ÕûÎ»ÖÃ, ÓÃÓÚµ±³¬Ê±Öµ±»¸Ä±äºó£¬ÌôÖÐÆäÔÚ minheapÖÐµÄÎ»ÖÃ. */
+/* è°ƒæ•´ä½ç½®, ç”¨äºŽå½“è¶…æ—¶å€¼è¢«æ”¹å˜åŽï¼ŒæŒ‘ä¸­å…¶åœ¨ minheapä¸­çš„ä½ç½®. */
 int minheap_adjust(minheap_t *s, minheapnode_t *e)
 {
 	if (-1 == e->minheap_idx) {
@@ -115,7 +115,7 @@ int minheap_adjust(minheap_t *s, minheapnode_t *e)
 
 
 
-/* À©ÈÝ*/
+/* æ‰©å®¹*/
 static int minheap_reserve_(minheap_t* s, unsigned n)
 {
 	if (s->a < n)

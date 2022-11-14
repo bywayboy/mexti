@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**:/root/depscripts/output/php-8.1.12:/root/depscripts/output/php-8.1.12/main"
             ],
-            "defines": [],
+            "defines": ["HAVE_CONFIG_H", "ZEND_COMPILE_DL_EXT=1"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",

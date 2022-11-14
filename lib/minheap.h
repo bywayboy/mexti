@@ -5,8 +5,8 @@
 
 
 /*
-	minheap ×îĞ¡¶ÑËã·¨. ´úÂëÀ´×Ô libevent.
-	ÓÃ×÷³¬Ê±¼ÆËã.
+	minheap æœ€å°å †ç®—æ³•. ä»£ç æ¥è‡ª libevent.
+	ç”¨ä½œè¶…æ—¶è®¡ç®—.
 */
 
 typedef struct min_heap minheap_t;
@@ -14,8 +14,8 @@ typedef struct minheap_node	minheapnode_t;
 
 struct minheap_node
 {
-	int32_t minheap_idx;	// ÔÚ min heap. ÖĞµÄË÷Òı.
-	uint64_t ev_timeout;		// ³¬Ê±ÒÀ¾İ£º
+	int32_t minheap_idx;	// åœ¨ min heap. ä¸­çš„ç´¢å¼•.
+	uint64_t ev_timeout;		// è¶…æ—¶ä¾æ®ï¼š
 };
 
 struct min_heap
@@ -24,53 +24,53 @@ struct min_heap
 	unsigned int n, a;
 };
 /*
-	³õÊ¼»¯Ò»¸ö×îĞ¡¶Ñ
+	åˆå§‹åŒ–ä¸€ä¸ªæœ€å°å †
 */
 void minheap_init(minheap_t* s);
 
 void minheap_reset(minheap_t* s);
 /*
-	ÊÍ·ÅÒ»¸ö×îĞ¡¶Ñ
+	é‡Šæ”¾ä¸€ä¸ªæœ€å°å †
 */
 void minheap_uninit(minheap_t* s);
 
 /*
-	ÅĞ¶ÏÒ»¸ö×îĞ¡¶ÑÊÇ·ñÎª¿Õ
+	åˆ¤æ–­ä¸€ä¸ªæœ€å°å †æ˜¯å¦ä¸ºç©º
 */
 int minheap_empty(minheap_t * s);
 /*
-	·µ»Ø×îĞ¡¶ÑÊÇ·ñÎª¿Õ.
+	è¿”å›æœ€å°å †æ˜¯å¦ä¸ºç©º.
 */
 unsigned int minheap_size(minheap_t * s);
 /*
-	½«Ò»¸ö½ÚµãÑ¹Èëµ½×îĞ¡¶ÑÖĞ.
+	å°†ä¸€ä¸ªèŠ‚ç‚¹å‹å…¥åˆ°æœ€å°å †ä¸­.
 */
 int minheap_push(minheap_t* s, minheapnode_t * e);
 /*
-	´Ó×îĞ¡¶ÑÖĞµ¯³öÒ»¸ö½Úµã. Ö»µ¯³ö¶¥¶ËµÄ.
+	ä»æœ€å°å †ä¸­å¼¹å‡ºä¸€ä¸ªèŠ‚ç‚¹. åªå¼¹å‡ºé¡¶ç«¯çš„.
 */
 minheapnode_t* minheap_pop(minheap_t* s);
 /*
-	´Ó×îĞ¡¶ÑÖĞÉ¾³ıÒ»¸ö½Úµã.
+	ä»æœ€å°å †ä¸­åˆ é™¤ä¸€ä¸ªèŠ‚ç‚¹.
 */
 int minheap_erase(minheap_t* s, minheapnode_t* e);
 /*
-	µ÷Õû½ÚµãÔÚ×îĞ¡¶ÑÖĞµÄÎ»ÖÃ. µ± eµÄ ev_timeout³ÉÔ±Öµ·¢Éú¸Ä±äºóĞèÒªÖ´ĞĞ¸Ãº¯Êı.
+	è°ƒæ•´èŠ‚ç‚¹åœ¨æœ€å°å †ä¸­çš„ä½ç½®. å½“ eçš„ ev_timeoutæˆå‘˜å€¼å‘ç”Ÿæ”¹å˜åéœ€è¦æ‰§è¡Œè¯¥å‡½æ•°.
 */
 int minheap_adjust(minheap_t *s, minheapnode_t *e);
 
 
 /*
-	³õÊ¼»¯Ò»¸ö×îĞ¡¶ÑÔªËØµÄË÷Òı¡£×¢Òâ£ºÈç¹ûÔªËØ´æÔÚÓÚ×îĞ¡¶Ñ£¬Ôò²»¿ÉÖ´ĞĞ¸Ãº¯Êı£¡
+	åˆå§‹åŒ–ä¸€ä¸ªæœ€å°å †å…ƒç´ çš„ç´¢å¼•ã€‚æ³¨æ„ï¼šå¦‚æœå…ƒç´ å­˜åœ¨äºæœ€å°å †ï¼Œåˆ™ä¸å¯æ‰§è¡Œè¯¥å‡½æ•°ï¼
 */
 void minheap_elm_init(minheapnode_t * elm);
 
 /*
-	ÅĞ¶Ïµ±Ç°ÔªËØÊÇ·ñ´æÔÚÓÚ×îĞ¡¶ÑµÄ¶¥¶Ë.
+	åˆ¤æ–­å½“å‰å…ƒç´ æ˜¯å¦å­˜åœ¨äºæœ€å°å †çš„é¡¶ç«¯.
 */
 int minheap_elm_is_top(const minheapnode_t * e);
 /*
-	ÅĞ¶ÏÒ»¸öÔªËØÊÇ·ñ´æÔÚÓÚÒ»¸ö ×îĞ¡¶ÑÖĞ.
+	åˆ¤æ–­ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨äºä¸€ä¸ª æœ€å°å †ä¸­.
 */
 int minheap_elm_inheap(const minheapnode_t * e);
 #endif

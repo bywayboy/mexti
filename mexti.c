@@ -12,7 +12,9 @@
 #include "php_mexti.h"
 #include "mexti_arginfo.h"
 
+#include "minheap/mexti_heapnode.h"
 #include "minheap/mexti_minheap.h"
+
 
 
 /* For compatibility with older PHP versions */
@@ -53,7 +55,9 @@ PHP_FUNCTION(test2)
 
 PHP_MINIT_FUNCTION(mexti)
 {
-	mexti_ce_ExMinHeap = register_class_ExMinHeap();
+	register_class_HeapNode();
+	register_class_MinHeap();
+	
 	return SUCCESS;
 }
 
