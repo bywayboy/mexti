@@ -1,16 +1,10 @@
 ## PHP 最小堆扩展
 
-参考资料:
-https://blog.csdn.net/manwea/article/details/103557214
 
-https://y2k38.github.io/posts/php-extension-writing-classes/
+## 如何编译
 
-深入理解PHP7内核之OBJECT
-https://www.laruence.com/2020/03/23/5605.html
-
-https://yaoguais.github.io/article/php/extension-php5to7.html
-
-https://github.com/GoAnimate-Stuff-by-Zoccorus/wrapper-offline/blob/master/utilities/sourcecode/php-src-master/ext/spl/spl_heap_arginfo.h
+1. 修改 make.sh PHP_BASE_PATH=/usr/local/php 为你的php所在安装目录.
+2. 执行 make.sh
 
 
 ### mexti\MinHeap
@@ -56,7 +50,7 @@ class MinHeap{
     public function top() : MinHeapNode;
 }
 ```
-## 节点类 \mexti\MinHeapNode
+## \mexti\MinHeapNode
 
 ```php
 namespace mexti;
@@ -95,3 +89,14 @@ class SampleNode extends MinHeapNode {
 } 
 ```
 
+参考资料:
+https://blog.csdn.net/manwea/article/details/103557214
+
+https://y2k38.github.io/posts/php-extension-writing-classes/
+
+深入理解PHP7内核之OBJECT
+https://www.laruence.com/2020/03/23/5605.html
+
+https://yaoguais.github.io/article/php/extension-php5to7.html
+
+https://github.com/GoAnimate-Stuff-by-Zoccorus/wrapper-offline/blob/master/utilities/sourcecode/php-src-master/ext/spl/spl_heap_arginfo.h
