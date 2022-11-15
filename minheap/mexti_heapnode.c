@@ -28,6 +28,7 @@ PHP_METHOD(MinHeapNode, erase)
 PHP_METHOD(MinHeapNode, inHeap)
 {
     mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
+    RETURN_BOOL(NULL != obj->c);
 }
 
 PHP_METHOD(MinHeapNode, adjust)
