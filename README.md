@@ -8,6 +8,7 @@ https://y2k38.github.io/posts/php-extension-writing-classes/
 深入理解PHP7内核之OBJECT
 https://www.laruence.com/2020/03/23/5605.html
 
+https://yaoguais.github.io/article/php/extension-php5to7.html
 
 https://github.com/GoAnimate-Stuff-by-Zoccorus/wrapper-offline/blob/master/utilities/sourcecode/php-src-master/ext/spl/spl_heap_arginfo.h
 
