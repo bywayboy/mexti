@@ -21,7 +21,7 @@ class MyNode extends \mexti\MinHeapNode {
     public function compare(\mexti\MinHeapNode $b) : int
     {
         if($this->key === $b->key) return 0;
-        elseif($this->key < $b->key) return 1;
+        elseif($this->key > $b->key) return 1;
         else return -1;
     }
 
@@ -40,6 +40,8 @@ class MyNode extends \mexti\MinHeapNode {
         echo "MyNode::hello {$this->key} \n";
     }
 }
+
+
 $heap = new \mexti\MinHeap();
 
 function addnodes($heap, int $count){

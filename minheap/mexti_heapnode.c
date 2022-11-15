@@ -71,12 +71,14 @@ static zend_function_entry class_MinHeapNode_methods [] = {
 static zend_object * mexti_heapnode_object_new(zend_class_entry * class_type)
 {
     mexti_heapnode_t * obj = zend_object_alloc(sizeof(mexti_heapnode_t), class_type);
-    zend_object_std_init(&obj->std, class_type);
-	object_properties_init(&obj->std, class_type);
 
     minheap_elm_init(&obj->e);
     obj->c = NULL;
     obj->std.handlers = &minheapnode_ce_handlers;
+    //zend_printf("HeapNode::new %p\n", obj);
+
+    zend_object_std_init(&obj->std, class_type);
+	object_properties_init(&obj->std, class_type);
 
     return &obj->std;
 }
@@ -87,8 +89,8 @@ static void mexti_heapnode_free_object(zend_object * object)
 
     // 释放所有属性.
     zend_object_std_dtor(&obj->std);
-
-    //zend_printf("HeapNode::free\n");
+    //object_properties_dtor(&obj->std);
+    //zend_printf("HeapNode::free %p\n", obj);
 }
 
 /*

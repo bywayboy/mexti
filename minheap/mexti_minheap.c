@@ -35,11 +35,12 @@ static inline mexti_minheap_t *mexti_minheap_from_obj(zend_object * obj) /* {{{ 
 PHP_METHOD(MinHeap, top)
 {
     mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
-    minheapnode_t * n = minheap_pop(&obj->e);
-    if(NULL != n ){
-        RETURN_LONG(obj->e.n);
+    if(obj->e.n > 0){
+        mexti_heapnode_t * n = container_of(obj->e.p[0], mexti_heapnode_t, e);
+        ZVAL_COPY(return_value, &n->z);
+        return;
     }
-    RETURN_LONG(obj->e.n);
+    RETURN_NULL();
 }
 
 PHP_METHOD(MinHeap, count)
