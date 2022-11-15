@@ -15,10 +15,6 @@ class MyNode extends \mexti\MinHeapNode {
         $this->key = $id;   
     }
 
-    public function __destruct()
-    {
-        echo "MyNode::__dstruct({$this->key})\n";
-    }
     /**
      * 实现一个将自身和另外一个 node比较的的方法
      */
@@ -27,7 +23,6 @@ class MyNode extends \mexti\MinHeapNode {
         if($this->key === $b->key) return 0;
         elseif($this->key < $b->key) return 1;
         else return -1;
-        
     }
 
     /**
@@ -50,16 +45,22 @@ $heap = new \mexti\MinHeap();
 function addnodes($heap, int $count){
     echo "add {$count} nodes...\n";
     for($i=0;$i < $count; $i++){
-        $heap->insert( new MyNode(rand(0,999)));
+        $heap->insert(new MyNode(rand(0,999)));
     }
 }
 
-addnodes($heap, 100);
-addnodes($heap, 100);
+addnodes($heap, 3);
+$node = new MyNode(1000);
+
+$heap->insert($node);
+
+$node->erase();
+$node->hello();
+
+echo "mexit\\MinHeap::count() = " . $heap->count()."\n";
 
 while(!$heap->isEmpty())
 {
-    $node = $heap->extract()->hello();
+    $heap->extract()->hello();
 }
-
 echo "mexit\\MinHeap::count() = " . $heap->count()."\n";
