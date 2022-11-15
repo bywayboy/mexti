@@ -50,7 +50,9 @@
         "streambuf": "c",
         "cfenv": "c",
         "typeinfo": "c",
-        "mexti_minheap.h": "c"
+        "mexti_minheap.h": "c",
+        "stddef.h": "c",
+        "zend_interfaces.h": "c"
     },
     "files.exclude": {
         "**/.git": true,

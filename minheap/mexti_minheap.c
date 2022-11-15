@@ -4,15 +4,20 @@
 
 #include "php.h"
 #include "zend_exceptions.h"
+#include <zend_interfaces.h>
 
 #include "../lib/minheap.h"
 #include "mexti_minheap.h"
 #include "mexti_heapnode.h"
 
+#include <stddef.h>
+
 PHPAPI zend_class_entry     * mexti_ce_MinHeap;
        zend_object_handlers   minheap_ce_handlers;
 
 
+#define container_of(ptr, type, member) \
+  ((type *) ((char *) (ptr) - offsetof(type, member)))
 
 typedef struct mexti_minheap_t
 {
@@ -53,9 +58,12 @@ PHP_METHOD(MinHeap, isEmpty)
 PHP_METHOD(MinHeap, extract)
 {
     mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
-    minheapnode_t * n = minheap_pop(&obj->e);
-    if(NULL != n ){
-
+    minheapnode_t * e = minheap_pop(&obj->e);
+    if(NULL != e ){
+        mexti_heapnode_t * n = container_of(e, mexti_heapnode_t, e);
+        ZVAL_COPY(return_value, &n->z);
+        Z_TRY_DELREF_P(&n->z);
+        return;
     }
     RETURN_NULL();
 }
@@ -71,12 +79,13 @@ PHP_METHOD(MinHeap, insert)
 
     mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
     // 
-    minheap_push(&obj->e, &node->e);
-    node->z = value;
-    // 针对 zvalue 的引用计数操作
-    Z_TRY_ADDREF_P(value);
-    //Z_TRY_DELREF_P(value);
+    ZVAL_COPY(&node->z, value);
+    node->c = &obj->e;
 
+    if(-1 == minheap_push(&obj->e, &node->e)){
+        Z_TRY_DELREF_P(&node->z);
+        RETURN_FALSE;
+    }
     RETURN_LONG(obj->e.n);
 }
 
@@ -88,11 +97,37 @@ PHP_METHOD(MinHeap, adjust)
 	ZEND_PARSE_PARAMETERS_END();
 
     mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
-    RETURN_LONG(obj->e.n);
+    mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
+    if(node->c == &obj->e){
+        minheap_adjust(&obj->e, &node->e);
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
+}
+
+PHP_METHOD(MinHeap, erase)
+{
+    zval *value;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ZVAL(value);
+	ZEND_PARSE_PARAMETERS_END();
+
+    mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
+    mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
+    if(minheap_elm_inheap(&node->e)){
+        minheap_erase(&obj->e, &node->e);
+        node->c = NULL;
+        Z_TRY_DELREF_P(&node->z);
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
 }
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_top, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX2(arginfo_class_MinHeap_count, 0, 0, IS_LONG, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_insert, 0, 0, 1)
@@ -100,10 +135,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_insert, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 
+
 #define arginfo_class_MinHeap_isEmpty arginfo_class_MinHeap_top
 #define arginfo_class_MinHeap_extract arginfo_class_MinHeap_top
 #define arginfo_class_MinHeap_adjust arginfo_class_MinHeap_top
-#define arginfo_class_MinHeap_count arginfo_class_MinHeap_top
+#define arginfo_class_MinHeap_erase arginfo_class_MinHeap_insert
 
 static const zend_function_entry class_MinHeap_methods[] = {
     ZEND_ME(MinHeap, insert, arginfo_class_MinHeap_insert,   ZEND_ACC_PUBLIC)
@@ -111,6 +147,7 @@ static const zend_function_entry class_MinHeap_methods[] = {
     ZEND_ME(MinHeap, top, arginfo_class_MinHeap_top,         ZEND_ACC_PUBLIC)
     ZEND_ME(MinHeap, count, arginfo_class_MinHeap_count,     ZEND_ACC_PUBLIC)
     ZEND_ME(MinHeap, extract, arginfo_class_MinHeap_extract, ZEND_ACC_PUBLIC)
+    ZEND_ME(MinHeap, erase, arginfo_class_MinHeap_erase,     ZEND_ACC_PUBLIC)
     ZEND_ME(MinHeap, isEmpty, arginfo_class_MinHeap_isEmpty, ZEND_ACC_PUBLIC)
     ZEND_FE_END
 };
@@ -121,22 +158,38 @@ static void mexti_minheap_free_object(zend_object *object)
 {
     mexti_minheap_t * obj = mexti_minheap_from_obj(object);
     unsigned int i;
-    // 释放所有属性.
+
+    // 释放所有标准属性.
     zend_object_std_dtor(&obj->std);
 
+    // 释放所有内部成员引用
     for(i = 0; i < obj->e.n; i ++){
-        minheapnode_t * n = &obj->e.p[i];
-        //mexti_heapnode_t * node = container_of(e, mexti_heapnode_t, e);
-        //Z_TRY_DELREF_P(node->z);
+        mexti_heapnode_t * n = container_of(obj->e.p[i], mexti_heapnode_t, e);
+        minheap_elm_init(&n->e);
+        n->c = NULL;
+        Z_TRY_DELREF_P(&n->z);
     }
     minheap_uninit(&obj->e);
-    zend_printf("\\mexti\\MinHeap::free\n");
+
+    //zend_printf("\\mexti\\MinHeap::free\n");
 }
 
-// 
+/*
 static void mexti_minheap_dtor_object(zend_object * object)
 {
     zend_printf("\\mexti\\MinHeap::dtor\n");
+}
+*/
+
+static int mexti_compare_callback(minheapnode_t * _a, minheapnode_t * _b)
+{
+    zval zresult;
+    mexti_heapnode_t * a = container_of(_a, mexti_heapnode_t, e), * b = container_of(_b, mexti_heapnode_t, e);
+    //zend_call_method_with_1_params(&a->std, a->std.ce, NULL, "compare", &zresult, b->z);
+    zend_call_method(&a->std, a->std.ce, NULL, "compare", sizeof("compare") -1, &zresult, 1, &b->z, NULL);
+    //zend_printf("compare(a,b) = %d \n", zresult.value.lval);
+    if(zresult.value.lval > 0) return 1;
+    return 0;
 }
 
 // 创建对象
@@ -146,7 +199,7 @@ static zend_object * mexti_minheap_object_new(zend_class_entry *class_type)
     zend_object_std_init(&obj->std, class_type);
 	object_properties_init(&obj->std, class_type);
 
-    minheap_init(&obj->e);
+    minheap_init(&obj->e, mexti_compare_callback);
     obj->std.handlers = &minheap_ce_handlers;
 
     return &obj->std;

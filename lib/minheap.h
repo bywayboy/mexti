@@ -11,22 +11,23 @@
 
 typedef struct min_heap minheap_t;
 typedef struct minheap_node	minheapnode_t;
+typedef int (* minheap_cmpfn)(minheapnode_t *a, minheapnode_t * b);
 
 struct minheap_node
 {
 	int32_t minheap_idx;	// 在 min heap. 中的索引.
-	uint64_t ev_timeout;		// 超时依据：
 };
 
 struct min_heap
 {
 	minheapnode_t ** p;
 	unsigned int n, a;
+	minheap_cmpfn cmp;
 };
 /*
 	初始化一个最小堆
 */
-void minheap_init(minheap_t* s);
+void minheap_init(minheap_t* s, minheap_cmpfn cmp);
 
 void minheap_reset(minheap_t* s);
 /*

@@ -10,3 +10,87 @@ https://www.laruence.com/2020/03/23/5605.html
 
 
 https://github.com/GoAnimate-Stuff-by-Zoccorus/wrapper-offline/blob/master/utilities/sourcecode/php-src-master/ext/spl/spl_heap_arginfo.h
+
+
+### mexti\MinHeap
+
+```php
+namespace mexti;
+
+class MinHeap{
+    
+    /**
+     * 获取内部成员数目
+     */
+    public function count() : int;
+
+    /**
+     * 是否为空 等价于 count() == 0
+     */
+    public function isEmpty() : bool;
+
+    /**
+     * 插入一个成员到最小堆中
+     */
+    public function insert(MinHeapNode $n) : bool|int;
+
+    /**
+     * 从最小堆中移除一个成员
+     */
+    public function insert(MinHeapNode $n) : bool|int;
+
+    /**
+     * 成员键值更新后, 调整在最小堆中的位置
+     */
+    public function adjust(MinHeapNode $n) : bool|int;
+
+    /**
+     * 从最小堆中弹出一个成员
+     */
+    public function extract() : MinHeapNode;
+
+    /**
+     * 获取最小堆中下一个将要弹出的成员(并不会弹出),
+     */
+    public function top() : MinHeapNode;
+}
+```
+## 节点类 \mexti\MinHeapNode
+
+```php
+namespace mexti;
+
+class MinHeapNode{
+    /**
+     * 需要被继承类实现的比较方法
+    */
+    public abstract compare(\mexti\MinHeapNode $b) : int;
+
+    /**
+     * 是否在 MinHeap池中.
+    */
+    public function inHeap() : bool;
+    /**
+     * 索引更新后调整位置
+     */
+    public function adjust(): bool;
+    /**
+     * 从MinHeap中移除自身
+    */
+    public function erase() : bool;
+}
+
+class SampleNode extends MinHeapNode {
+    // 比较键值
+    protected int $key;
+    /*
+        实现比较方法
+    */
+    public function compare(\MinHeapNode $b) : int {
+        if($this->key > $b->key) return 1;
+        elseif($this->key < $b->key) return -1;
+        return 0;
+    }
+} 
+```
+

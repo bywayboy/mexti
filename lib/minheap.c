@@ -1,6 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include "php.h"
+#include "zend_exceptions.h"
 
 #include "minheap.h"
 
@@ -11,22 +14,23 @@ static void minheap_shift_up_(minheap_t* s, unsigned hole_index, minheapnode_t *
 static void minheap_shift_down_(minheap_t* s, unsigned hole_index, minheapnode_t* e);
 static void minheap_shift_up_unconditional_(minheap_t* s, unsigned hole_index, minheapnode_t * e);
 
-#define minheap_elem_greater(a, b) \
-	((a)->ev_timeout > (b)->ev_timeout)
+#define minheap_elem_greater(s, a, b) \
+	s->cmp((a) , (b))
+	//s->cmp(((a)->ev_timeout > (b)->ev_timeout))
 
-void minheap_init(minheap_t* s)
+void minheap_init(minheap_t* s, minheap_cmpfn cmp)
 {
-	s->p = NULL; s->n = 0; s->a = 0;
+	s->p = NULL; s->n = 0; s->a = 0;s->cmp = cmp;
 }
 void minheap_reset(minheap_t* s)
 {
-	if (NULL != s->p) free(s->p);
+	if (NULL != s->p) efree(s->p);
 	s->p = NULL; s->n = 0; s->a = 0;
 }
 void minheap_uninit(minheap_t* s)
 {
 	if (s->p)
-		free(s->p);
+		efree(s->p);
 	s->p = NULL; s->n = 0; s->a = 0;
 }
 
@@ -86,7 +90,7 @@ int minheap_erase(minheap_t* s, minheapnode_t* e)
 		   greater than one or both its children. Since the children are known
 		   to be less than the parent, it can't need to shift both up and
 		   down. */
-		if (e->minheap_idx > 0 && minheap_elem_greater(s->p[parent], last))
+		if (e->minheap_idx > 0 && minheap_elem_greater(s, s->p[parent], last))
 			minheap_shift_up_unconditional_(s, e->minheap_idx, last);
 		else
 			minheap_shift_down_(s, e->minheap_idx, last);
@@ -105,7 +109,7 @@ int minheap_adjust(minheap_t *s, minheapnode_t *e)
 		unsigned parent = (e->minheap_idx - 1) / 2;
 		/* The position of e has changed; we shift it up or down
 		 * as needed.  We can't need to do both. */
-		if (e->minheap_idx > 0 && minheap_elem_greater(s->p[parent], e))
+		if (e->minheap_idx > 0 && minheap_elem_greater(s, s->p[parent], e))
 			minheap_shift_up_unconditional_(s, e->minheap_idx, e);
 		else
 			minheap_shift_down_(s, e->minheap_idx, e);
@@ -124,7 +128,7 @@ static int minheap_reserve_(minheap_t* s, unsigned n)
 		unsigned a = s->a ? s->a * 2 : 8;
 		if (a < n)
 			a = n;
-		if (!(p = (minheapnode_t **)realloc(s->p, a * sizeof *p)))
+		if (!(p = (minheapnode_t **)erealloc(s->p, a * sizeof *p)))
 			return -1;
 		s->p = p;
 		s->a = a;
@@ -136,7 +140,7 @@ static int minheap_reserve_(minheap_t* s, unsigned n)
 static void minheap_shift_up_(minheap_t* s, unsigned hole_index, minheapnode_t * e)
 {
 	unsigned parent = (hole_index - 1) / 2;
-	while (hole_index && minheap_elem_greater(s->p[parent], e))
+	while (hole_index && minheap_elem_greater(s, s->p[parent], e))
 	{
 		(s->p[hole_index] = s->p[parent])->minheap_idx = hole_index;
 		hole_index = parent;
@@ -150,8 +154,8 @@ static void minheap_shift_down_(minheap_t* s, unsigned hole_index, minheapnode_t
 	unsigned min_child = 2 * (hole_index + 1);
 	while (min_child <= s->n)
 	{
-		min_child -= min_child == s->n || minheap_elem_greater(s->p[min_child], s->p[min_child - 1]);
-		if (!(minheap_elem_greater(e, s->p[min_child])))
+		min_child -= min_child == s->n || minheap_elem_greater(s, s->p[min_child], s->p[min_child - 1]);
+		if (!(minheap_elem_greater(s, e, s->p[min_child])))
 			break;
 		(s->p[hole_index] = s->p[min_child])->minheap_idx = hole_index;
 		hole_index = min_child;
@@ -168,6 +172,6 @@ static void minheap_shift_up_unconditional_(minheap_t* s, unsigned hole_index, m
 		(s->p[hole_index] = s->p[parent])->minheap_idx = hole_index;
 		hole_index = parent;
 		parent = (hole_index - 1) / 2;
-	} while (hole_index && minheap_elem_greater(s->p[parent], e));
+	} while (hole_index && minheap_elem_greater(s, s->p[parent], e));
 	(s->p[hole_index] = e)->minheap_idx = hole_index;
 }
