@@ -87,6 +87,7 @@ PHP_METHOD(MinHeap, insert)
 
     if(-1 == minheap_push(&obj->e, &node->e)){
         Z_TRY_DELREF_P(&node->z);
+        Z_TRY_DELREF_P(&node->zc);
         RETURN_FALSE;
     }
     RETURN_LONG(obj->e.n);
