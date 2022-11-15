@@ -6,7 +6,7 @@
 typedef struct mexti_heapnode{
     minheapnode_t e;
     minheap_t * c;
-    zval z;
+    zval z, zc;
     zend_object std;
 }mexti_heapnode_t;
 

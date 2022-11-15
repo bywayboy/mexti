@@ -54,8 +54,12 @@ function addnodes($heap, int $count){
     }
 }
 
-addnodes($heap, 2);
+addnodes($heap, 100);
+addnodes($heap, 100);
 
-$node = $heap->extract();
-$node->hello();
+while(!$heap->isEmpty())
+{
+    $node = $heap->extract()->hello();
+}
+
 echo "mexit\\MinHeap::count() = " . $heap->count()."\n";

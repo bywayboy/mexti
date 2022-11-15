@@ -21,7 +21,8 @@ PHP_METHOD(MinHeapNode, erase)
     if(NULL != obj->c){
         minheap_erase(obj->c, &obj->e);
         obj->c = NULL;
-        Z_TRY_DELREF_P(&n->z);
+        Z_TRY_DELREF_P(&obj->zc);
+        Z_TRY_DELREF_P(&obj->z);
         RETURN_TRUE;
     }
     RETURN_FALSE;

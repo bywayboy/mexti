@@ -63,6 +63,7 @@ PHP_METHOD(MinHeap, extract)
         mexti_heapnode_t * n = container_of(e, mexti_heapnode_t, e);
         ZVAL_COPY(return_value, &n->z);
         Z_TRY_DELREF_P(&n->z);
+        Z_TRY_DELREF_P(&n->zc);
         return;
     }
     RETURN_NULL();
@@ -80,6 +81,7 @@ PHP_METHOD(MinHeap, insert)
     mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
     // 
     ZVAL_COPY(&node->z, value);
+    ZVAL_COPY(&node->zc, ZEND_THIS);
     node->c = &obj->e;
 
     if(-1 == minheap_push(&obj->e, &node->e)){
@@ -117,6 +119,7 @@ PHP_METHOD(MinHeap, erase)
     if(minheap_elm_inheap(&node->e)){
         minheap_erase(&obj->e, &node->e);
         node->c = NULL;
+        Z_TRY_DELREF_P(&node->zc);
         Z_TRY_DELREF_P(&node->z);
         RETURN_TRUE;
     }
@@ -167,11 +170,12 @@ static void mexti_minheap_free_object(zend_object *object)
         mexti_heapnode_t * n = container_of(obj->e.p[i], mexti_heapnode_t, e);
         minheap_elm_init(&n->e);
         n->c = NULL;
+        Z_TRY_DELREF_P(&n->zc);
         Z_TRY_DELREF_P(&n->z);
     }
     minheap_uninit(&obj->e);
 
-    //zend_printf("\\mexti\\MinHeap::free\n");
+    zend_printf("\\mexti\\MinHeap::free\n");
 }
 
 /*
