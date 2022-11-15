@@ -32,7 +32,7 @@ class MinHeap{
     /**
      * 从最小堆中移除一个成员
      */
-    public function insert(MinHeapNode $n) : bool|int;
+    public function erase(MinHeapNode $n) : bool|int;
 
     /**
      * 成员键值更新后, 调整在最小堆中的位置
