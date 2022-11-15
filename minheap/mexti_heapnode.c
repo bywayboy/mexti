@@ -20,6 +20,8 @@ PHP_METHOD(MinHeapNode, erase)
     mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
     if(NULL != obj->c){
         minheap_erase(obj->c, &obj->e);
+        obj->c = NULL;
+        Z_TRY_DELREF_P(&n->z);
         RETURN_TRUE;
     }
     RETURN_FALSE;
