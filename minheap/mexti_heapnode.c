@@ -34,6 +34,16 @@ PHP_METHOD(MinHeapNode, inHeap)
     RETURN_BOOL(NULL != obj->c);
 }
 
+PHP_METHOD(MinHeapNode, getHeap)
+{
+    mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
+    if(NULL != obj->c){
+        ZVAL_COPY(return_value, &obj->zc);
+        return;
+    }
+    RETURN_NULL();
+}
+
 PHP_METHOD(MinHeapNode, adjust)
 {
     mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
@@ -62,6 +72,8 @@ static zend_function_entry class_MinHeapNode_methods [] = {
     ZEND_ME(MinHeapNode, erase, arginfo_class_MinHeapNode_erase, ZEND_ACC_PUBLIC)
     // 判断自己是否处于一个MinHeap中
     ZEND_ME(MinHeapNode, inHeap, arginfo_class_MinHeapNode_inHeap, ZEND_ACC_PUBLIC)
+    // 获取自己所在的Heap
+    ZEND_ME(MinHeapNode, getHeap, arginfo_class_MinHeapNode_inHeap, ZEND_ACC_PUBLIC)
     // 比较键值 变更后, 调用该方法触发位置调整.
     ZEND_ME(MinHeapNode, adjust, arginfo_class_MinHeapNode_adjust, ZEND_ACC_PUBLIC)
     ZEND_FE_END

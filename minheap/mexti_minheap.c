@@ -36,7 +36,7 @@ PHP_METHOD(MinHeap, top)
 {
     mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
     if(obj->e.n > 0){
-        mexti_heapnode_t * n = container_of(obj->e.p[0], mexti_heapnode_t, e);
+        mexti_heapnode_t * n = container_of(*obj->e.p, mexti_heapnode_t, e);
         ZVAL_COPY(return_value, &n->z);
         return;
     }

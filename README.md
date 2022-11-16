@@ -68,6 +68,11 @@ class MinHeapNode{
      * 是否在 MinHeap池中.
     */
     public function inHeap() : bool;
+
+    /*
+     * 获取自身所在的MinHeap
+    */
+    public function getHeap() : ?\mexti\MinHeap;
     /**
      * 索引更新后调整位置.
      *      true:  调整后 $n 位于堆头部
