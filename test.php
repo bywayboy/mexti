@@ -15,14 +15,14 @@ class MyNode extends \mexti\MinHeapNode {
         $this->key = $id;   
     }
 
+    public function getKey(): int{ return $this->key;}
     /**
      * 实现一个将自身和另外一个 node比较的的方法
      */
     public function compare(\mexti\MinHeapNode $b) : int
     {
-        if($this->key === $b->key) return 0;
-        elseif($this->key > $b->key) return 1;
-        else return -1;
+        if($this->key > $b->key) return 1;
+        return 0;
     }
 
     /**
@@ -51,15 +51,30 @@ function addnodes($heap, int $count){
     }
 }
 
-addnodes($heap, 3);
-$node = new MyNode(1000);
+//addnodes($heap, 3);
+//$node = new MyNode(1000);
 
-$heap->insert($node);
+$heap->insert(new MyNode(0));
+$heap->insert(new MyNode(1));
+$heap->insert(new MyNode(2));
 
-$node->erase();
-$node->hello();
 
-echo "mexit\\MinHeap::count() = " . $heap->count()."\n";
+while(!$heap->isEmpty())
+{
+    $node = $heap->top();
+    if($node->getKey() > 0 ){
+        $heap->extract()->hello();
+        continue;
+    }else{
+        if($node->adjust()){
+            echo "无需再次遍历...\n";
+            break;
+        }
+        continue;
+    }
+    break;
+}
+
 
 while(!$heap->isEmpty())
 {
