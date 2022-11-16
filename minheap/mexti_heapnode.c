@@ -39,9 +39,9 @@ PHP_METHOD(MinHeapNode, adjust)
     mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
     if(NULL != obj->c){
         minheap_adjust(obj->c, &obj->e);
-        RETURN_TRUE;
+        RETURN_BOOL(obj->e.minheap_idx == 0);
     }
-    RETURN_FALSE;
+    zend_throw_exception(NULL, "the node is not in this heap.", 1000);
 }
 
 

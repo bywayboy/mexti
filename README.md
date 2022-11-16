@@ -35,7 +35,10 @@ class MinHeap{
     public function erase(MinHeapNode $n) : bool|int;
 
     /**
-     * 成员键值更新后, 调整在最小堆中的位置
+     * 成员键值更新后, 调整在最小堆中的位置.
+     * 返回值:
+     *      true:  调整后 $n 位于堆头部
+     *      false: 调整后 $n 不位于堆头部
      */
     public function adjust(MinHeapNode $n) : bool|int;
 
@@ -66,7 +69,9 @@ class MinHeapNode{
     */
     public function inHeap() : bool;
     /**
-     * 索引更新后调整位置
+     * 索引更新后调整位置.
+     *      true:  调整后 $n 位于堆头部
+     *      false: 调整后 $n 不位于堆头部
      */
     public function adjust(): bool;
     /**

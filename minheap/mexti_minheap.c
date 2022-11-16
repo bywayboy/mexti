@@ -102,11 +102,15 @@ PHP_METHOD(MinHeap, adjust)
 
     mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
     mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
+
     if(node->c == &obj->e){
         minheap_adjust(&obj->e, &node->e);
-        RETURN_TRUE;
+        RETURN_BOOL(node->e.minheap_idx == 0);
+    }else if(node->c == NULL){
+        zend_throw_exception(NULL, "the node is not in heap.", 1000);    
+        return;
     }
-    RETURN_FALSE;
+    zend_throw_exception(NULL, "the node is in another heap.", 1001);
 }
 
 PHP_METHOD(MinHeap, erase)
@@ -177,7 +181,7 @@ static void mexti_minheap_free_object(zend_object *object)
     }
     minheap_uninit(&obj->e);
 
-    zend_printf("\\mexti\\MinHeap::free\n");
+    //zend_printf("\\mexti\\MinHeap::free\n");
 }
 
 /*
