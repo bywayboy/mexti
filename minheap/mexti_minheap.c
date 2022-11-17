@@ -80,18 +80,35 @@ PHP_METHOD(MinHeap, insert)
 	ZEND_PARSE_PARAMETERS_END();
 
     mexti_heapnode_t * node = mexti_minheapnode_from_obj(Z_OBJ_P(value));
-    // 
-    ZVAL_COPY(&node->z, value);
-    ZVAL_COPY(&node->zc, ZEND_THIS);
-    node->c = &obj->e;
+    
+    // 不在任何一个 heap 可以加入
+    if(NULL == node->c){
+        ZVAL_COPY(&node->z, value);
+        ZVAL_COPY(&node->zc, ZEND_THIS);
+        node->c = &obj->e;
+        if(0 == minheap_push(&obj->e, &node->e)){
+            RETURN_LONG(obj->e.n);
+        }
 
-    if(-1 == minheap_push(&obj->e, &node->e)){
+        //加入失败还原处理
+        node->c = NULL;
         Z_TRY_DELREF_P(&node->z);
         Z_TRY_DELREF_P(&node->zc);
+        zend_throw_exception(NULL, "insert failed, can't reserve minheap pull.", 1002);
         RETURN_FALSE;
     }
-    RETURN_LONG(obj->e.n);
+
+    // 已经加入过当前堆, 触发一次更新.
+    if(node->c == &obj->e){
+        minheap_adjust(&obj->e, &node->e);
+        RETURN_LONG(obj->e.n);
+    }
+
+    // 节点在其它堆, 抛出一个异常.
+    zend_throw_exception(NULL, "the node is in another heap.", 1001);
+    return;
 }
+
 
 PHP_METHOD(MinHeap, adjust)
 {
