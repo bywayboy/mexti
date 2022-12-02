@@ -70,6 +70,26 @@ PHP_METHOD(MinHeap, extract)
     RETURN_NULL();
 }
 
+PHP_METHOD(MinHeap, at)
+{
+    zend_long index;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(index);
+	ZEND_PARSE_PARAMETERS_END();
+
+    mexti_minheap_t * obj = Z_MINHEAP_P(ZEND_THIS);
+    if(index >=0 && obj->e.n > index){
+        minheapnode_t * e = obj->e.p[index];
+        mexti_heapnode_t * n = container_of(e, mexti_heapnode_t, e);
+
+        ZVAL_COPY(return_value, &n->z);
+        Z_TRY_DELREF_P(&n->z);
+        Z_TRY_DELREF_P(&n->zc);
+        return;
+    }
+    RETURN_NULL();
+}
+
 PHP_METHOD(MinHeap, insert)
 {
     zval *value;
