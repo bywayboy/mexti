@@ -1,5 +1,5 @@
 #ifndef _php_mexti_minheapnode_h
-#define _php_mexti_minheap_h
+#define _php_mexti_minheapnode_h
 
 #include "../lib/minheap.h"
 
