@@ -184,6 +184,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_insert, 0, 0, 1)
     ZEND_ARG_OBJ_INFO(0, b, mexti\\MinHeapNode, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_at, 0, 0, 1)
+    ZEND_ARG_TYPE_INFO(0, index, IS_LONG)
+ZEND_END_ARG_INFO()
+
 
 
 #define arginfo_class_MinHeap_isEmpty arginfo_class_MinHeap_top
@@ -199,6 +203,7 @@ static const zend_function_entry class_MinHeap_methods[] = {
     ZEND_ME(MinHeap, extract, arginfo_class_MinHeap_extract, ZEND_ACC_PUBLIC)
     ZEND_ME(MinHeap, erase, arginfo_class_MinHeap_erase,     ZEND_ACC_PUBLIC)
     ZEND_ME(MinHeap, isEmpty, arginfo_class_MinHeap_isEmpty, ZEND_ACC_PUBLIC)
+    ZEND_ME(MinHeap, at, arginfo_class_MinHeap_at,      ZEND_ACC_PUBLIC)
     ZEND_FE_END
 };
 
