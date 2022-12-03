@@ -185,7 +185,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_insert, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_at, 0, 0, 1)
-    ZEND_ARG_TYPE_INFO(0, index, IS_LONG)
+    ZEND_ARG_TYPE_INFO(0, index, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 
