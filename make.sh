@@ -2,8 +2,8 @@
 
 PHP_BASE_PATH=/usr/local/php
 
-${PHP_BASE_PATH}/bin/phpize
-./configure --with-php-config=${PHP_BASE_PATH}/bin/php-config
+# ${PHP_BASE_PATH}/bin/phpize
+# ./configure --with-php-config=${PHP_BASE_PATH}/bin/php-config
 make && make install
 
 PHP_CONFIG_FILE=mexti.ini

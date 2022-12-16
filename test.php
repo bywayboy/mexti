@@ -80,4 +80,15 @@ while(!$heap->isEmpty())
 {
     $heap->extract()->hello();
 }
-echo "mexit\\MinHeap::count() = " . $heap->count()."\n";
+
+$lua  = new \mexti\Lua('
+print("Hello Lua")
+function test(start, to, pledge, price)
+    print(start ,to, pledge, price)
+    return 1,2
+end
+');
+
+list($a, $b) = $lua->call("test", [1,2,3],2,3,4);
+echo "{$a}, {$b} \n";
+echo "mexti\\MinHeap::count() = " . $heap->count()."\n";

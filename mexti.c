@@ -14,6 +14,7 @@
 
 #include "minheap/mexti_heapnode.h"
 #include "minheap/mexti_minheap.h"
+#include "lua/mexti_lua.h"
 
 
 
@@ -28,6 +29,7 @@ PHP_MINIT_FUNCTION(mexti)
 {
 	register_class_HeapNode();
 	register_class_MinHeap();
+	register_class_Lua();
 	
 	return SUCCESS;
 }
