@@ -83,12 +83,20 @@ while(!$heap->isEmpty())
 
 $lua  = new \mexti\Lua('
 print("Hello Lua")
-function test(start, to, pledge, price)
-    print(start ,to, pledge, price)
-    return 1,2
+function test(xstart, to, pledge, price)
+    for key, val in pairs(xstart) do
+        print("xstart", key, val)
+    end
+    print(xstart ,to, pledge, price)
+    return xstart , {1,2,3}
 end
 ');
 
-list($a, $b) = $lua->call("test", [1,2,3],2,3,4);
-echo "{$a}, {$b} \n";
+$arg1 = new \stdClass();
+
+$arg1->username = 'bywayboy';
+$arg1->sex = 2;
+$b = 'bad value';
+$c = $lua->call("test", $arg1,2,3,4);
+echo json_encode($c) . "\n";
 echo "mexti\\MinHeap::count() = " . $heap->count()."\n";

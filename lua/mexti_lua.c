@@ -85,8 +85,8 @@ static int lua_pushtable_array(lua_State * L, zval * arr)
 
     HashTable * ht = Z_ARRVAL_P(arr);
     
+    lua_checkstack(L, 3);
     lua_createtable(L, 3,3);
-
     //uint32 count = zend_hash_num_elements(ht);
     ZEND_HASH_FOREACH_KEY_VAL(ht, num, key, val) {
         if (key) {
@@ -104,7 +104,24 @@ static int lua_pushtable_array(lua_State * L, zval * arr)
 
 static int lua_pushtable_object(lua_State * L, zval * arr)
 {
+    zend_ulong num;
+	zend_string *key;
+	zval *val;
+
     HashTable * ht = zend_get_properties_for(arr, ZEND_PROP_PURPOSE_DEBUG);
+    //uint32 count = zend_hash_num_elements(ht);
+    lua_checkstack(L, 3);
+    lua_createtable(L, 0, 0);
+    ZEND_HASH_FOREACH_KEY_VAL(ht, num, key, val) {
+        if (key) {
+			lua_pushlstring(L, ZSTR_VAL(key), ZSTR_LEN(key));
+		} else {
+			lua_pushinteger(L, num);
+		}
+        lua_pushzval(L, val);
+        lua_rawset(L, -3);
+    }
+    ZEND_HASH_FOREACH_END();
     return 1;
 }
 
@@ -149,9 +166,12 @@ static void bind_lua_val(zval* return_value, lua_State * L, int i)
     const char * s;
     zend_array * sub_array;
     int t = lua_type(L, i), c, j;
+    i = lua_absindex(L, i);
     switch(t){
     case LUA_TNUMBER:
-        lua_isinteger(L, i) ? RETURN_LONG(lua_tointeger(L, i)):RETURN_DOUBLE(lua_tonumber(L, i));
+        if(lua_isinteger(L, i))
+            RETURN_LONG(lua_tointeger(L, i));
+        RETURN_DOUBLE(lua_tonumber(L, i));
         break;
     case LUA_TBOOLEAN:
         RETURN_BOOL(lua_toboolean(L, i));
@@ -161,26 +181,67 @@ static void bind_lua_val(zval* return_value, lua_State * L, int i)
         RETURN_STRINGL(s, l);
         break;
     case LUA_TTABLE:
-        array_init(return_value);
         c = lua_rawlen(L, i);
         if(c > 0){
+            array_init_size(return_value, c);
             for(j = 0; j < c; j++){
-                lua_rawgeti(L, j);
+                lua_rawgeti(L, i, 1+j);
                 switch(lua_type(L, -1)){
                 case LUA_TNUMBER:
-                    lua_isinteger(L, i) ? add_index_long(return_value, j, lua_tointeger(L, -1)) : add_index_double(return_value, j, lua_tonumber(L, -1));
+                    if(lua_isinteger(L, -1))
+                        add_index_long(return_value, j, lua_tointeger(L, -1));
+                    else
+                        add_index_double(return_value, j, lua_tonumber(L, -1));
+                    break;
+                case LUA_TSTRING:
+                    s = lua_tolstring(L, -1, &l);
+                    add_index_stringl(return_value, j, s,l);
                     break;
                 case LUA_TBOOLEAN:
                     add_index_bool(return_value, j, lua_toboolean(L, -1));
                     break;
                 case LUA_TTABLE:
-                    array_init(&sub_array);
-                    bind_lua_val(&sub_array, lua_absindex(L, -1));
+                    bind_lua_val(&sub_array, L, lua_absindex(L, -1));
                     add_index_array(return_value, j, &sub_array);
+                    break;
+                default:
+                    add_index_null(return_value, j);
+                    break;
                 }
                 lua_pop(L, 1);
             }
+        }else{
+            array_init(return_value);
+            lua_pushnil(L);
+		    while(lua_next(L, i)){
+                switch(lua_type(L, -1)){
+                case LUA_TNUMBER:
+                    if(lua_isinteger(L, i))
+                        add_assoc_long(return_value, lua_tostring(L, -2), lua_tointeger(L, -1));
+                    else
+                        add_assoc_long(return_value, lua_tostring(L, -2), lua_tonumber(L, -1));
+                    break;
+                case LUA_TSTRING:
+                    s = lua_tolstring(L, -1, &l);
+                    add_assoc_stringl(return_value, lua_tostring(L, -2), s,l);
+                    break;
+                case LUA_TBOOLEAN:
+                    add_assoc_bool(return_value, lua_tostring(L, -2), lua_toboolean(L, -1));
+                    break;
+                case LUA_TTABLE:
+                    bind_lua_val(&sub_array, L, -1);
+                    add_assoc_array(return_value, lua_tostring(L, -2), &sub_array);
+                default:
+                    add_assoc_null(return_value, lua_tostring(L, -2));
+                    break;
+                }
+                lua_pop(L,1);
+            }
         }
+        break;
+    default:
+        RETURN_NULL();
+        break;
     }
 }
 
@@ -193,12 +254,11 @@ PHP_METHOD(Lua, call)
     zval *args = NULL;
     mexti_lua_t * obj = Z_LUA_P(ZEND_THIS);
     lua_State * L = obj->L;
-    int base = lua_gettop(L);
+    int ret, base = lua_gettop(L);
 
     ZEND_PARSE_PARAMETERS_START(1, -1)
         Z_PARAM_STRING(func, size_func);
         #if PHP_VERSION_ID >= 80000
-		    //Z_PARAM_VARIADIC_WITH_NAMED(params, param_count, named_params)
             Z_PARAM_VARIADIC('*', args, argc)
         #else
             //TODO Throw Eror.
@@ -206,23 +266,33 @@ PHP_METHOD(Lua, call)
         #endif
     ZEND_PARSE_PARAMETERS_END();
 
-    lua_pushlstring(L, func, size_func);
     if(LUA_TFUNCTION == lua_getglobal(L, func)){
-        zend_printf("arg count = %d\n", argc);
         if(NULL != args){
             for(i=0;i< argc; i++){
                 lua_pushzval(L, &args[i]);
             }
         }
-        if(LUA_OK == lua_pcall(L, argc, LUA_MULTRET,0)){
+        if(LUA_OK == (ret = lua_pcall(L, argc, LUA_MULTRET,0))){
             int retc = lua_gettop(L) - base;
             if(retc == 1){
                 bind_lua_val(return_value, L, -1);
+                lua_settop(L, base);
+                return;
+            }else if(retc > 1){
+                array_init_size(return_value, retc);
+                int x  = 0;
+                for(int i = retc; i > 0; i--){
+                    zval subval;
+                    bind_lua_val(&subval, L, 0 - i);
+                    add_index_zval(return_value, x++, &subval);
+                }
+                lua_settop(L, base);
                 return;
             }
         }
     }
     lua_settop(L, base);
+    RETURN_NULL();
 }
 
 
