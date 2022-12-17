@@ -81,22 +81,37 @@ while(!$heap->isEmpty())
     $heap->extract()->hello();
 }
 
-$lua  = new \mexti\Lua('
+$lua  = new \mexti\LuaVM('
 print("Hello Lua")
-function test(xstart, to, pledge, price)
-    for key, val in pairs(xstart) do
-        print("xstart", key, val)
+
+function dump(table)
+    for key, val in pairs(table) do
+        if type(val) == "table" then
+            print("xstart", key, dump(val))
+        else
+            print("xstart", key, val)
+        end
     end
+end
+
+function test(xstart, to, pledge, price)
+    dump(xstart)
     print(xstart ,to, pledge, price)
+
     return xstart , {1,2,3}
 end
 ');
 
 $arg1 = new \stdClass();
-
 $arg1->username = 'bywayboy';
 $arg1->sex = 2;
+$arg1->sub = new \stdClass();
+$arg1->sub->name='cjy';
+$arg1->sub->sex=1;
 $b = 'bad value';
-$c = $lua->call("test", $arg1,2,3,4);
-echo json_encode($c) . "\n";
+
+list($a,$c) = $lua->call("test", $arg1,2,3,4);
+echo json_encode([$a, $c]) . "\n";
+
+
 echo "mexti\\MinHeap::count() = " . $heap->count()."\n";
