@@ -243,7 +243,12 @@ static int mexti_compare_callback(minheapnode_t * _a, minheapnode_t * _b)
     zval zresult;
     mexti_heapnode_t * a = container_of(_a, mexti_heapnode_t, e), * b = container_of(_b, mexti_heapnode_t, e);
     //zend_call_method_with_1_params(&a->std, a->std.ce, NULL, "compare", &zresult, b->z);
+#if PHP_VERSION_ID >= 80000
     zend_call_method(&a->std, a->std.ce, NULL, "compare", sizeof("compare") -1, &zresult, 1, &b->z, NULL);
+#elif PHP_VERSION_ID < 80000 && PHP_VERSION_ID >= 70000
+    // PHP7 第一个参数是 zval
+    zend_call_method(&a->z, a->std.ce, NULL, "compare", sizeof("compare") -1, &zresult, 1, &b->z, NULL);
+#endif
     //zend_printf("compare(a,b) = %d \n", zresult.value.lval);
     if(zresult.value.lval > 0) return 1;
     return 0;
