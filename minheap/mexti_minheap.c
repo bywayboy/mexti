@@ -176,8 +176,10 @@ PHP_METHOD(MinHeap, erase)
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_top, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX2(arginfo_class_MinHeap_count, 0, 0, IS_LONG, 0, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_MinHeap_count, 0, 0, IS_LONG, 0)
+    ZEND_ARG_OBJ_INFO(0, b, mexti\\MinHeapNode, 0)
 ZEND_END_ARG_INFO()
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_MinHeap_insert, 0, 0, 1)
     ZEND_ARG_OBJ_INFO(0, b, mexti\\MinHeapNode, 0)

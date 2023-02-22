@@ -54,8 +54,7 @@ PHP_METHOD(MinHeapNode, adjust)
     zend_throw_exception(NULL, "the node is not in this heap.", 1000);
 }
 
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX2(arginfo_class_MinHeapNode_compare, 0, 1, IS_LONG, 0, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_MinHeapNode_compare, 0, 1, IS_LONG, 0)
     ZEND_ARG_OBJ_INFO(0, b, mexti\\MinHeapNode, 0)
 ZEND_END_ARG_INFO()
 
