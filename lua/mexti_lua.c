@@ -283,8 +283,8 @@ PHP_METHOD(LuaVM, call)
                 return;
             }else if(retc > 1){
                 array_init_size(return_value, retc);
-                int x  = 0;
-                for(int i = retc; i > 0; i--){
+                int x  = 0, i;
+                for(i = retc; i > 0; i--){
                     zval subval;
                     bind_lua_val(&subval, L, 0 - i);
                     add_index_zval(return_value, x++, &subval);

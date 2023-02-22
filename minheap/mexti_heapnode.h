@@ -15,7 +15,7 @@ extern PHPAPI zend_class_entry *mexti_ce_ExHeapNode;
 
 zend_class_entry *register_class_HeapNode();
 
-inline mexti_heapnode_t * mexti_minheapnode_from_obj(zend_object * obj) /* {{{ */ {
+static inline mexti_heapnode_t * mexti_minheapnode_from_obj(zend_object * obj) /* {{{ */ {
 	return (mexti_heapnode_t*)((char*)(obj) - XtOffsetOf(mexti_heapnode_t, std));
 };
 
