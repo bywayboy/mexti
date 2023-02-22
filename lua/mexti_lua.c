@@ -261,12 +261,7 @@ PHP_METHOD(LuaVM, call)
 
     ZEND_PARSE_PARAMETERS_START(1, -1)
         Z_PARAM_STRING(func, size_func);
-        #if PHP_VERSION_ID >= 80000
-            Z_PARAM_VARIADIC('*', args, argc)
-        #else
-            //TODO Throw Eror.
-            zend_error("xzend error.")
-        #endif
+        Z_PARAM_VARIADIC('*', args, argc)
     ZEND_PARSE_PARAMETERS_END();
 
     if(LUA_TFUNCTION == lua_getglobal(L, func)){
