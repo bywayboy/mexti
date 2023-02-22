@@ -175,7 +175,8 @@ static void bind_lua_val(zval* return_value, lua_State * L, int i)
                     break;
                 case LUA_TTABLE:
                     bind_lua_val(&sub_zval, L, lua_absindex(L, -1));
-                    add_index_array(return_value, j, Z_ARR(sub_zval));
+                    add_index_zval(return_value, j, &sub_zval);
+                    //add_index_array(return_value, j, Z_ARR(sub_zval));
                     break;
                 default:
                     add_index_null(return_value, j);
@@ -203,7 +204,9 @@ static void bind_lua_val(zval* return_value, lua_State * L, int i)
                     break;
                 case LUA_TTABLE:
                     bind_lua_val(&sub_zval, L, -1);
-                    add_assoc_array(return_value, lua_tostring(L, -2), Z_ARR(sub_zval));
+                    add_assoc_zval(return_value, lua_tostring(L, -2), &sub_zval);
+                    //add_assoc_array(return_value, lua_tostring(L, -2), Z_ARR(sub_zval));
+                    break;
                 default:
                     add_assoc_null(return_value, lua_tostring(L, -2));
                     break;
