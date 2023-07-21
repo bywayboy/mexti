@@ -63,6 +63,7 @@ PHP_METHOD(MinHeap, extract)
     if(NULL != e ){
         mexti_heapnode_t * n = container_of(e, mexti_heapnode_t, e);
         ZVAL_COPY(return_value, &n->z);
+        n->c = NULL;
         Z_TRY_DELREF_P(&n->z);
         Z_TRY_DELREF_P(&n->zc);
         return;
