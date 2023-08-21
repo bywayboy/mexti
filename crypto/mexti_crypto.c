@@ -35,7 +35,6 @@ PHP_METHOD(Crypto, sm3)
     
     sm3_init(&ctx);
     sm3_update(&ctx, (uint8_t*) buffer, (uint32_t)size);
-    zend_printf("bytes: %d\n", ctx.count);
     sm3_final(&ctx, &out[0]);
     RETURN_STRINGL(out, 32);
 }
