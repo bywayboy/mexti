@@ -52,7 +52,10 @@
         "typeinfo": "c",
         "mexti_minheap.h": "c",
         "stddef.h": "c",
-        "zend_interfaces.h": "c"
+        "zend_interfaces.h": "c",
+        "endian.h": "c",
+        "byteswap.h": "c",
+        "mexti_crypto.h": "c"
     },
     "files.exclude": {
         "**/.git": true,
