@@ -116,7 +116,7 @@ echo json_encode([$a, $c]) . "\n";
 
 echo "mexti\\MinHeap::count() = " . $heap->count()."\n";
 
-echo "\mexti\\Crypto::sm3()=" . bin2hex(\mexti\Crypto::sm3("bywayboy")) ."\n";
-echo "\mexti\\Crypto::sm3()=" . bin2hex(\mexti\Crypto::sm3("abcdefg")) ."\n";
-echo "\mexti\\Crypto::sm3()=" . bin2hex(\mexti\Crypto::sm3("bwhaty")) ."\n";
-echo "\mexti\\Crypto::sm3()=" . bin2hex(\mexti\Crypto::sm3("bywayboy")) ."\n";
+echo "\mexti\\Crypto::sm3(s, false) =" . \mexti\Crypto::sm3("bywayboy") ."\n";
+echo "\mexti\\Crypto::sm3(s, true)  =" . \mexti\Crypto::sm3("bywayboy", true) ."\n";
+//echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy", false)) ."\n";
+//echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy")) ."\n";

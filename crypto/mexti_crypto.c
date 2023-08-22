@@ -22,24 +22,39 @@ static inline mexti_crypto_t *mexti_crypto_from_obj(zend_object * obj) /* {{{ */
 }
 #define Z_MINHEAP_P(zv)  mexti_crypto_from_obj(Z_OBJ_P((zv)))
 
-
+static char hexDigit[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 PHP_METHOD(Crypto, sm3)
 {
     char * buffer = NULL, out[32];
     size_t size;
     struct sm3_state ctx;
+    bool raw;
     
-    ZEND_PARSE_PARAMETERS_START(1, 1)
+    ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(buffer, size);
+        Z_PARAM_OPTIONAL
+        Z_PARAM_BOOL_EX(raw, _dummy, 0, 0)
 	ZEND_PARSE_PARAMETERS_END();
     
     sm3_init(&ctx);
     sm3_update(&ctx, (uint8_t*) buffer, (uint32_t)size);
     sm3_final(&ctx, &out[0]);
+
+    if(!raw){
+        char hexout[64];
+        size_t p = 0;
+        for(size=0; size<32; size++){
+            hexout[ p ++ ] = hexDigit[ (uint8_t)(out[size]) >> 4];
+            hexout[ p ++ ] = hexDigit[ (uint8_t)(out[size]) & 0xF];
+        }
+        RETURN_STRINGL(hexout, 64);
+    }
     RETURN_STRINGL(out, 32);
+    
 }
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Crypto_sm3, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, code, IS_STRING, 0)
+    ZEND_ARG_INFO(0, raw_output)
 ZEND_END_ARG_INFO()
 
 static const zend_function_entry class_Crypto_methods[] = {
