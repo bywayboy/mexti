@@ -7,6 +7,7 @@
 #include "zend_exceptions.h"
 
 #include "lib/crypto/sm3.h"
+#include <stdbool.h>
 
 PHPAPI zend_class_entry     * mexti_ce_Crypto;
        zend_object_handlers   crypto_ce_handlers;
