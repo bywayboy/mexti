@@ -33,7 +33,7 @@ PHP_METHOD(Crypto, sm3)
     ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(buffer, size);
         Z_PARAM_OPTIONAL
-        Z_PARAM_BOOL_EX(raw, _dummy, 0, 0)
+        Z_PARAM_BOOL(raw)
 	ZEND_PARSE_PARAMETERS_END();
     
     sm3_init(&ctx);
@@ -54,7 +54,7 @@ PHP_METHOD(Crypto, sm3)
 }
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Crypto_sm3, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, code, IS_STRING, 0)
-    ZEND_ARG_INFO(0, raw_output)
+    ZEND_ARG_INFO(0, raw)
 ZEND_END_ARG_INFO()
 
 static const zend_function_entry class_Crypto_methods[] = {
