@@ -7,7 +7,6 @@
 #include "zend_exceptions.h"
 
 #include "lib/crypto/sm3.h"
-#include <stdbool.h>
 
 PHPAPI zend_class_entry     * mexti_ce_Crypto;
        zend_object_handlers   crypto_ce_handlers;
@@ -29,7 +28,7 @@ PHP_METHOD(Crypto, sm3)
     char * buffer = NULL, out[32];
     size_t size;
     struct sm3_state ctx;
-    bool raw;
+    zend_bool raw;
     
     ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(buffer, size);
