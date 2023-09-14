@@ -38,9 +38,18 @@ CheckPHPConfig;
 
 
 # cat <<EOF >>  facealg.ini
-# [facealg]
-# facealg.license = ${PHP_BASE_PATH}/etc
-# facealg.serch_num = 5000
+# [mexti]
+# mexti.license = ${PHP_BASE_PATH}/etc
+# mexti.serch_num = 5000
 # EOF
+
+if [ ! -f zzface.tar.gz ]; then
+    wget -O zzface.tar.gz  https://mexti.cc/depends/zzface.tar.gz
+fi
+
+if [ ! -d zzface ]; then
+    tar -xvf zzface.tar.gz
+    cp zzfae/* /usr/local/lib/
+fi
 
 ${PHP_BASE_PATH}/bin/php -c mexti.ini -f test.php

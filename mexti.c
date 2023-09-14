@@ -5,6 +5,7 @@
 #endif
 
 #include "php.h"
+
 #include "php_ini.h"
 #include "php_main.h"
 #include "ext/standard/info.h"
@@ -17,8 +18,14 @@
 #include "minheap/mexti_minheap.h"
 #include "lua/mexti_lua.h"
 #include "crypto/mexti_crypto.h"
+#include "face/mexti_face.h"
 
+ZEND_DECLARE_MODULE_GLOBALS(mexti)
 
+PHP_INI_BEGIN()
+	STD_PHP_INI_ENTRY("facealg.license", "/usr/local/php/etc", PHP_INI_ALL, OnUpdateStringUnempty, license, zend_mexti_globals, mexti_globals)
+	STD_PHP_INI_ENTRY("facealg.serch_num", "5000", PHP_INI_ALL, OnUpdateLong, iSearchNum, zend_mexti_globals, mexti_globals)
+PHP_INI_END()
 
 /* For compatibility with older PHP versions */
 #ifndef ZEND_PARSE_PARAMETERS_NONE
@@ -34,6 +41,7 @@ PHP_MINIT_FUNCTION(mexti)
 	register_class_MinHeap();
 	register_class_Lua();
 	register_class_Crypto();
+	register_class_Face();
 	return SUCCESS;
 }
 

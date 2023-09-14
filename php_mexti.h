@@ -12,4 +12,18 @@ extern zend_module_entry mexti_module_entry;
 ZEND_TSRMLS_CACHE_EXTERN()
 # endif
 
+ZEND_BEGIN_MODULE_GLOBALS(mexti)
+char * license;
+int iSearchNum;
+void * pAlgEngine;
+ZEND_END_MODULE_GLOBALS(mexti)
+
+ZEND_EXTERN_MODULE_GLOBALS(mexti)
+
+#ifdef ZTS
+#define MEXTI_G(v) TSRMG(mexti_globals_id, zend_mexti_globals *, v)
+#else
+#define MEXTI_G(v) (mexti_globals.v)
+#endif
+
 #endif	/* PHP_MEXTI_H */
