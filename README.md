@@ -7,6 +7,18 @@
 2. 执行 make.sh
 
 
+## 关于人脸算法库
+
+人脸特征提取、活体检测、1v1 比对 1vN查找. 采用的是 中正公司的SDK. 如需获取授权文件 请联系QQ:872044.
+修改 `zzface/tools/MXParaSet.ini`  后执行 ./auth 获取授权信息
+```ini
+[MXParaSet]
+IP=183.129.171.153
+Port=1902
+UserId=testuser
+PWD=testuser
+```
+
 ### mexti\MinHeap
 
 ```php

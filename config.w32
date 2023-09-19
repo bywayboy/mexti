@@ -2,6 +2,6 @@ ARG_ENABLE('mexti', 'mexti support', 'no');
 
 if (PHP_MEXTI != 'no') {
 	AC_DEFINE('HAVE_MEXTI', 1, 'mexti support enabled');
-
+	AC_DEFINE('HAVE_ZZ_FACEAPI', 1,'mexti support zzface API.')
 	EXTENSION('mexti', 'mexti.c', 'mexti/lbs.c', 'minheap/exti_minheap.c', 'minheap/mexti_heapnode.c', 'lib/lbs.c', 'lib/minheap.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
 }

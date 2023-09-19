@@ -55,7 +55,9 @@
         "zend_interfaces.h": "c",
         "endian.h": "c",
         "byteswap.h": "c",
-        "mexti_crypto.h": "c"
+        "mexti_crypto.h": "c",
+        "zzfacedll.h": "c",
+        "zend_exceptions.h": "c"
     },
     "files.exclude": {
         "**/.git": true,

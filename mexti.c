@@ -23,8 +23,9 @@
 ZEND_DECLARE_MODULE_GLOBALS(mexti)
 
 PHP_INI_BEGIN()
-	STD_PHP_INI_ENTRY("facealg.license", "/usr/local/php/etc", PHP_INI_ALL, OnUpdateStringUnempty, license, zend_mexti_globals, mexti_globals)
-	STD_PHP_INI_ENTRY("facealg.serch_num", "5000", PHP_INI_ALL, OnUpdateLong, iSearchNum, zend_mexti_globals, mexti_globals)
+	STD_PHP_INI_ENTRY("mexti.face_on", "On", PHP_INI_ALL, OnUpdateBool, faceAlgOn, zend_mexti_globals, mexti_globals)
+	STD_PHP_INI_ENTRY("mexti.face_license", "/usr/local/php/etc", PHP_INI_ALL, OnUpdateStringUnempty, license, zend_mexti_globals, mexti_globals)
+	STD_PHP_INI_ENTRY("mexti.face_serch_num", "5000", PHP_INI_ALL, OnUpdateLong, iSearchNum, zend_mexti_globals, mexti_globals)
 PHP_INI_END()
 
 /* For compatibility with older PHP versions */
@@ -36,12 +37,19 @@ PHP_INI_END()
 
 PHP_MINIT_FUNCTION(mexti)
 {
+	REGISTER_INI_ENTRIES();
+	
 	register_class_Lbs();
 	register_class_HeapNode();
 	register_class_MinHeap();
 	register_class_Lua();
 	register_class_Crypto();
-	register_class_Face();
+	if(MEXTI_G(faceAlgOn)){
+		php_printf("开启了人脸检测算法. 初始化算法库!\n");
+		register_class_Face();
+	}else{
+		php_printf("未开启人脸检测算法库!\n");
+	}
 	return SUCCESS;
 }
 

@@ -85,7 +85,7 @@ static void mexti_crypto_free_object(zend_object *object)
 
 zend_class_entry * register_class_Crypto()
 {
-	 zend_class_entry ce, *class_entry;
+	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "mexti\\Crypto", class_Crypto_methods);
 	//class_entry = zend_register_internal_interface(&ce);

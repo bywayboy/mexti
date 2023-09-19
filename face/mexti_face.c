@@ -13,11 +13,44 @@
 #include "lib/face/mxImageTool.h"
 #include "lib/face/MXFaceInfoEx.h"
 
+
 #define FACEALF_MASK_QUALITY	(1 << 0)
 #define FACEALF_MASK_MASK		(1 << 1)
 #define FACEALF_MASK_LIVENESS	(1 << 2)
 
-PHPAPI zend_class_entry     * mexti_ce_Face;
+static const char * faceErrorString(int code){
+    switch(code){
+    case 1: return "校验失败";
+    case 11: return "初始化失败";
+    case 12: return "未初始化";
+    case 13: return "人脸检测失败";
+    case 14: return "关键点定位失败";
+    case 15: return "多张人脸";
+    case 16: return "去网纹失败";
+    case 17: return "特征格式校验失败";
+    case 18: return "人脸特征提取失败";
+    case 19: return "人脸比对失败";
+    case 20: return "模型文件不存在";
+    case 21: return "授权文件不合法（系统与授权文件不匹配）";
+    case 22: return "授权过期";
+    case 23: return "人脸个数超过额定值（100）或者授权算法类型不一致";
+    case 24: return "检测模型不存在";
+    case 25: return "质量评价模型不存在";
+    case 26: return "识别模型不存在";
+    case 27: return "待检测人脸图像小于 100x100";
+    case 31: return "图像质量评价失败";
+    case 32: return "图像质量评价失败";
+    case 100: return "授权过期或无效";
+    case 101: return "授权文件非法";
+    case 102: return "授权文件不找到";
+    case 103: return "授权 UKey 无效";
+    case 1000: return "人脸索引超出范围.";
+    default:
+        return "未知错误.";
+    }
+}
+
+PHPAPI zend_class_entry     * mexti_ce_Face, * mexti_ce_FaceException;
        zend_object_handlers   face_ce_handlers;
 
 typedef struct mexti_face_t
@@ -47,8 +80,13 @@ PHP_METHOD(Face, __construct)
     bool maxNum_isNull;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
 
-    ZEND_PARSE_PARAMETERS_START(1, 1)
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+
+    ZEND_PARSE_PARAMETERS_START(1, 2)
 	Z_PARAM_STRING(image, limage)
+    Z_PARAM_OPTIONAL
     Z_PARAM_LONG_EX(maxNum, maxNum_isNull, 0, 0)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -71,15 +109,15 @@ PHP_METHOD(Face, __construct)
             ret = zzDetectFaceThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, &face->nMaxFaceNum, &face->FaceInfo[0]);
             if(0 == ret){
                 if(face->nMaxFaceNum > maxNum){
-                    zend_throw_exception(NULL, "too much face!", ret);
+                    zend_throw_exception(mexti_ce_FaceException, faceErrorString(ret), ret);
                 }
                 zend_update_property_long(mexti_ce_Face, &face->std, ZEND_STRL("num"), face->nMaxFaceNum);
                 return;
             }
-            zend_throw_exception(NULL, "detect face failed!", ret);
+            zend_throw_exception(mexti_ce_FaceException, faceErrorString(ret), ret);
         }
     }
-    zend_throw_exception(NULL, "Decode Image Failed!", ret);
+    zend_throw_exception(mexti_ce_FaceException, "Decode Image Failed!", ret);
 }
 
 // 获取图像质量最好的人脸索引.
@@ -87,12 +125,18 @@ PHP_METHOD(Face, best)
 {
     int i, quality = 0, idx = -1;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
-    for(i=0; i < face->nMaxFaceNum; i ++){
-        if(!(face->mask[i] & FACEALF_MASK_QUALITY)){
+
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+
+    for(i=0; i < face->nMaxFaceNum; i ++) {
+        if(!(face->mask[i] & FACEALF_MASK_QUALITY)) {
             if(0 == zzFaceQualityThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[i])){
                 face->mask[i] |= FACEALF_MASK_QUALITY;
             }
         }
+
         if(face->mask[i] & FACEALF_MASK_QUALITY){
             if(quality < face->FaceInfo[i].quality){
                 quality = face->FaceInfo[i].quality;
@@ -100,7 +144,37 @@ PHP_METHOD(Face, best)
             }
         }
     }
-    RETURN_LONG(i);
+    RETURN_LONG(idx);
+}
+
+// 获取制定索引的图像
+PHP_METHOD(Face, quality)
+{
+    zend_long index;
+    mexti_face_t * face = Z_FACE_P(ZEND_THIS);
+
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_LONG(index)
+	ZEND_PARSE_PARAMETERS_END();
+
+    if(index < 0 || index > face->nMaxFaceNum - 1){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(1000), 1000);
+    }
+
+    if(!(face->mask[index] & FACEALF_MASK_QUALITY)) {
+        if(0 == zzFaceQualityThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[index])){
+            face->mask[index] |= FACEALF_MASK_QUALITY;
+        }
+    }
+
+    if(face->mask[index] & FACEALF_MASK_QUALITY){
+        RETURN_LONG(face->FaceInfo[index].quality);
+    }
+    RETURN_LONG(0);
 }
 
 // 获取人脸特征
@@ -110,22 +184,59 @@ PHP_METHOD(Face, feature)
     zend_long iFaceIndex;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
 
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+
     ZEND_PARSE_PARAMETERS_START(1, 1)
 	Z_PARAM_LONG(iFaceIndex)
 	ZEND_PARSE_PARAMETERS_END();
 
-    if(iFaceIndex >= face->nMaxFaceNum || iFaceIndex < 0){
-        zend_throw_exception(NULL, "Bad Face Index!", ret);
-        return;
+    if(iFaceIndex < 0 || iFaceIndex > face->nMaxFaceNum - 1){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(1000), 1000);
     }
 
     size_t iFaceFeaSize = zzGetFeatureSizeThread(MEXTI_G(pAlgEngine));
-	MXFaceInfoEx * info = &face->FaceInfo[iFaceIndex];
 	unsigned char * pFaceFea = emalloc(iFaceFeaSize);
-	if(0 == (ret  = zzExtractFeatureThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, info, pFaceFea))){
-        RETVAL_STRINGL(pFaceFea, iFaceFeaSize);
+
+	if(0 == (ret  = zzExtractFeatureThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[iFaceIndex], pFaceFea))){
+        RETVAL_STRINGL_FAST(pFaceFea, iFaceFeaSize);
+        efree(pFaceFea);
+        return;
     }
-    zend_throw_exception(NULL, "Get Face Feature failed!", ret);
+    zend_throw_exception(mexti_ce_FaceException, faceErrorString(ret), ret);
+}
+
+// 获取人脸特征
+PHP_METHOD(Face, liveness)
+{
+    int ret;
+    zend_long iFaceIndex;
+    mexti_face_t * face = Z_FACE_P(ZEND_THIS);
+
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+	Z_PARAM_LONG(iFaceIndex)
+	ZEND_PARSE_PARAMETERS_END();
+
+    if(iFaceIndex < 0 || iFaceIndex > face->nMaxFaceNum - 1){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(1000), 1000);
+    }
+
+    if(!(face->mask[iFaceIndex] & FACEALF_MASK_LIVENESS)) {
+        if(0 == (ret  = zzVisLivenessDetectThread(FACEALG_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[iFaceIndex]))){
+            face->mask[iFaceIndex] |= FACEALF_MASK_LIVENESS;
+        }
+    }
+
+    if((face->mask[iFaceIndex] & FACEALF_MASK_LIVENESS)) {
+        RETURN_LONG(face->FaceInfo[iFaceIndex].liveness);
+    }
+
+    RETURN_LONG(0);
 }
 
 PHP_METHOD(Face, compare)
@@ -133,6 +244,10 @@ PHP_METHOD(Face, compare)
     float score = 0;
     char * featureA, * featureB;
 	size_t lFeatureA, lFeatureB;
+
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
 
     ZEND_PARSE_PARAMETERS_START(2, 2)
 	Z_PARAM_STRING(featureA, lFeatureA)
@@ -148,6 +263,7 @@ PHP_METHOD(Face, compare)
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_Face___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, ImageData, IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, MaxFaceNum, IS_LONG, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__best, 0, 0, 0)
@@ -158,11 +274,21 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__compare, 0, 0, 0)
     ZEND_ARG_TYPE_INFO(0, Feature2, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__quality, 0, 0, 1)
+    ZEND_ARG_TYPE_INFO(0, faceIndex, IS_LONG, 0)
+ZEND_END_ARG_INFO()
 
 static const zend_function_entry class_Face_methods[] = {
     PHP_ME(Face, __construct, arginfo_Face___construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Face, best, arginfo_Face__best, ZEND_ACC_PUBLIC)
+    PHP_ME(Face, quality, arginfo_Face__quality, ZEND_ACC_PUBLIC)
+    PHP_ME(Face, feature, arginfo_Face__quality, ZEND_ACC_PUBLIC)
+    PHP_ME(Face, liveness, arginfo_Face__quality, ZEND_ACC_PUBLIC)
     PHP_ME(Face, compare, arginfo_Face__compare, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    ZEND_FE_END
+};
+
+static const zend_function_entry class_FaceException_methods[] = {
     ZEND_FE_END
 };
 
@@ -194,11 +320,14 @@ static void mexti_face_free_object(zend_object *object)
 
 zend_class_entry * register_class_Face()
 {
-	zend_class_entry ce;
+	zend_class_entry ce, cee;
+
 
 	INIT_CLASS_ENTRY(ce, "mexti\\Face", class_Face_methods);
+    INIT_CLASS_ENTRY(cee, "mexti\\FaceException", class_FaceException_methods);
 	//class_entry = zend_register_internal_interface(&ce);
     mexti_ce_Face = zend_register_internal_class_ex(&ce, NULL);
+    mexti_ce_FaceException = zend_register_internal_class_ex(&cee, zend_ce_exception);
 	//class_entry->ce_flags |= ZEND_ACC_ABSTRACT;
 	//zend_class_implements(class_entry, 2, class_entry_Iterator, class_entry_Countable);
     mexti_ce_Face->create_object          = mexti_face_object_new;
@@ -219,5 +348,6 @@ zend_class_entry * register_class_Face()
 	zend_declare_property_long(mexti_ce_Face, ZEND_STRL("num"), 0, ZEND_ACC_READONLY | ZEND_ACC_PUBLIC);
 	zend_declare_property_long(mexti_ce_Face, ZEND_STRL("errCode"), 0, ZEND_ACC_READONLY | ZEND_ACC_PUBLIC);
 
+    MEXTI_G(pAlgEngine) = zzInitAlgNThread(MEXTI_G(license), MEXTI_G(iSearchNum), &MEXTI_G(nError));
 	return mexti_ce_Face;
 }

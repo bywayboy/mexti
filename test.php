@@ -118,5 +118,17 @@ echo "mexti\\MinHeap::count() = " . $heap->count()."\n";
 
 echo "\mexti\\Crypto::sm3(s, false) =" . \mexti\Crypto::sm3("bywayboy") ."\n";
 echo "\mexti\\Crypto::sm3(s, true)  =" . \mexti\Crypto::sm3("bywayboy", true) ."\n";
+
+echo "开始测试人脸识别\n";
+try{
+    $face = new \mexti\Face(file_get_contents('12.jpg'), 100);
+    $bestIdx = $face->best();
+    $quality = $face->quality($bestIdx);
+    $feature = base64_encode($face->feature($bestIdx));
+    echo "人脸数: {$face->num}, 尺寸:{$face->width}, {$face->height}, 质量最好的头像是: {$bestIdx}, 质量评分:{$quality}\n";
+    echo "人脸特征: {$feature}\n";
+}catch(\Throwable $e){
+    echo $e->getMessage(). $e->getCode(). "\n";
+}
 //echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy", false)) ."\n";
 //echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy")) ."\n";

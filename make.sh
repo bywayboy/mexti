@@ -1,9 +1,23 @@
 #!/bin/bash
 
+
+if [ ! -f zzface.tar.gz ]; then
+    wget -O zzface.tar.gz  https://mexti.cc/depends/zzface.tar.gz
+fi
+
+if [ ! -d zzface ]; then
+    tar -xvf zzface.tar.gz
+    cp zzface/* /lib/x86_64-linux-gnu
+    pushd  /lib/x86_64-linux-gnu
+    ln -s MXFaceApiDebian7.so libMXFaceApiDebian7.so
+fi
+
 PHP_BASE_PATH=/usr/local/php
 
-${PHP_BASE_PATH}/bin/phpize
-./configure --with-php-config=${PHP_BASE_PATH}/bin/php-config
+if [ ! -f Makefile ]; then
+    ${PHP_BASE_PATH}/bin/phpize
+    ./configure --with-php-config=${PHP_BASE_PATH}/bin/php-config
+fi
 make && make install
 
 PHP_CONFIG_FILE=mexti.ini
@@ -37,19 +51,17 @@ function CheckPHPConfig() {
 CheckPHPConfig;
 
 
-# cat <<EOF >>  facealg.ini
-# [mexti]
-# mexti.license = ${PHP_BASE_PATH}/etc
-# mexti.serch_num = 5000
-# EOF
+cat  <<EOF 	>> ${PHP_CONFIG_FILE}
 
-if [ ! -f zzface.tar.gz ]; then
-    wget -O zzface.tar.gz  https://mexti.cc/depends/zzface.tar.gz
-fi
+[mexti]
+; 是否开启人脸检测模块
+mexti.face_on = On;
+; 人脸检测授权模型文件位置
+mexti.face_license = "/usr/local/php/etc";
+; 1:N 最大搜索数目
+mexti.face_serch_num = 5000;
 
-if [ ! -d zzface ]; then
-    tar -xvf zzface.tar.gz
-    cp zzfae/* /usr/local/lib/
-fi
+EOF
 
-${PHP_BASE_PATH}/bin/php -c mexti.ini -f test.php
+
+$PHP_BASE_PATH/bin/php -c mexti.ini -f test.php

@@ -14,8 +14,10 @@ ZEND_TSRMLS_CACHE_EXTERN()
 
 ZEND_BEGIN_MODULE_GLOBALS(mexti)
 char * license;
-int iSearchNum;
+zend_long iSearchNum;
+int nError;
 void * pAlgEngine;
+bool faceAlgOn;
 ZEND_END_MODULE_GLOBALS(mexti)
 
 ZEND_EXTERN_MODULE_GLOBALS(mexti)

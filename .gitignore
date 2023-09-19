@@ -43,3 +43,4 @@ config.h.in~
 mexti.dep
 *.dep
 *loT
+/zzface
