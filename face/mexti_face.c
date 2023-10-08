@@ -227,7 +227,7 @@ PHP_METHOD(Face, liveness)
     }
 
     if(!(face->mask[iFaceIndex] & FACEALF_MASK_LIVENESS)) {
-        if(0 == (ret  = zzVisLivenessDetectThread(FACEALG_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[iFaceIndex]))){
+        if(0 == (ret  = zzVisLivenessDetectThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[iFaceIndex]))){
             face->mask[iFaceIndex] |= FACEALF_MASK_LIVENESS;
         }
     }

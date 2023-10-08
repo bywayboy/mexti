@@ -54,6 +54,12 @@ PHP_METHOD(MinHeapNode, adjust)
     zend_throw_exception(NULL, "the node is not in this heap.", 1000);
 }
 
+PHP_METHOD(MinHeapNode, isTop)
+{
+    mexti_heapnode_t * obj = Z_MINHEAPNODE_P(ZEND_THIS);
+    RETURN_BOOL(obj->e.minheap_idx == 0);
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_MinHeapNode_compare, 0, 1, IS_LONG, 0)
     ZEND_ARG_OBJ_INFO(0, b, mexti\\MinHeapNode, 0)
 ZEND_END_ARG_INFO()
@@ -75,6 +81,8 @@ static zend_function_entry class_MinHeapNode_methods [] = {
     ZEND_ME(MinHeapNode, getHeap, arginfo_class_MinHeapNode_inHeap, ZEND_ACC_PUBLIC)
     // 比较键值 变更后, 调用该方法触发位置调整.
     ZEND_ME(MinHeapNode, adjust, arginfo_class_MinHeapNode_adjust, ZEND_ACC_PUBLIC)
+    // 判断节点是否处于堆顶.
+    ZEND_ME(MinHeapNode, isTop, arginfo_class_MinHeapNode_adjust, ZEND_ACC_PUBLIC)
     ZEND_FE_END
 };
 
