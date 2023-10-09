@@ -51,13 +51,12 @@ PHP_MINIT_FUNCTION(mexti)
 	register_class_Lua();
 	register_class_Crypto();
 	register_class_Finger();
+	register_class_Face();
 
 	if(MEXTI_G(faceAlgOn)){
-		php_printf("开启了人脸检测算法. 初始化算法库!\n");
-		register_class_Face();
-	}else{
-		php_printf("未开启人脸检测算法库!\n");
+		MEXTI_G(pAlgEngine) = zzInitAlgNThread(MEXTI_G(license), MEXTI_G(iSearchNum), &MEXTI_G(nError));
 	}
+
 	return SUCCESS;
 }
 
