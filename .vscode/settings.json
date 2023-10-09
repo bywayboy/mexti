@@ -57,7 +57,10 @@
         "byteswap.h": "c",
         "mexti_crypto.h": "c",
         "zzfacedll.h": "c",
-        "zend_exceptions.h": "c"
+        "zend_exceptions.h": "c",
+        "base64.h": "c",
+        "miaxis_api.h": "c",
+        "miaxis_api_id.h": "c"
     },
     "files.exclude": {
         "**/.git": true,

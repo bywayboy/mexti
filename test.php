@@ -112,14 +112,20 @@ $b = 'bad value';
 
 list($a,$c) = $lua->call("test", $arg1,2,3,4);
 echo json_encode([$a, $c]) . "\n";
-
-
 echo "mexti\\MinHeap::count() = " . $heap->count()."\n";
+
 
 echo "\mexti\\Crypto::sm3(s, false) =" . \mexti\Crypto::sm3("bywayboy") ."\n";
 echo "\mexti\\Crypto::sm3(s, true)  =" . \mexti\Crypto::sm3("bywayboy", true) ."\n";
 
-echo "开始测试人脸识别\n";
+echo "\n=================== 开始测试人脸识别 ====================\n";
+
+try{
+    \mexti\Face::init();
+}catch(\mexti\FaceException $e){
+    echo $e->getMessage(). $e->getCode(). "\n";
+}
+
 try{
     $face = new \mexti\Face(file_get_contents('12.jpg'), 100);
     $bestIdx = $face->best();
@@ -130,5 +136,9 @@ try{
 }catch(\Throwable $e){
     echo $e->getMessage(). $e->getCode(). "\n";
 }
-//echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy", false)) ."\n";
-//echo "\mexti\\Crypto::sm3()=" . (\mexti\Crypto::sm3("bywayboy")) ."\n";
+
+
+echo "\n==================== 开始测试指纹 ====================\n";
+$smallFinger = \mexti\Finger::compress('QwEREgELVwAAAAAAAAAAAAAAACUBmv///////////3cLpvxQGrT8ohqp/GYkuPxWNGf+YT60/B9EwvxgRAD8k1ap/OhboPxwb7f8zHit/Dd+yPyYm7f8UKgO/Feyv/zQvbD8w79h/lHEEvy/xa78Us3N/H/3yfy1BLT9ghLZ/Z0j0P1HJjX9tSTN/Q4o7/32Ko79gjEm/acwGf2ROO/95DeY/bY5ZP/FQ0n/slEz/91PlP0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKY=');
+echo "压缩后指纹长度:".strlen($smallFinger)."字节.\n";
+

@@ -2,15 +2,29 @@
 
 
 if [ ! -f zzface.tar.gz ]; then
-    wget -O zzface.tar.gz  https://mexti.cc/depends/zzface.tar.gz
+    wget -O zzface.tar.gz  https://exti.cc/depends/zzface.tar.gz
 fi
 
 if [ ! -d zzface ]; then
     tar -xvf zzface.tar.gz
-    cp zzface/* /lib/x86_64-linux-gnu
+    cp zzface/* /lib/x86_64-linux-gnu/
     pushd  /lib/x86_64-linux-gnu
     ln -s MXFaceApiDebian7.so libMXFaceApiDebian7.so
+    popd
 fi
+
+if [ ! -f zzfinger.tar.gz ]; then
+    wget -O zzface.tar.gz  https://exti.cc/depends/zzfinger.tar.gz
+fi
+
+if [ ! -d zzfinger ]; then
+    tar -xvf zzfinger.tar.gz
+    cp zzfinger/* /lib/x86_64-linux-gnu/
+    pushd  /lib/x86_64-linux-gnu
+    popd
+fi
+
+
 
 PHP_BASE_PATH=/usr/local/php
 

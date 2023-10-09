@@ -126,10 +126,6 @@ PHP_METHOD(Face, best)
     int i, quality = 0, idx = -1;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
 
-    if(0 != MEXTI_G(nError)){
-        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
-    }
-
     for(i=0; i < face->nMaxFaceNum; i ++) {
         if(!(face->mask[i] & FACEALF_MASK_QUALITY)) {
             if(0 == zzFaceQualityThread(MEXTI_G(pAlgEngine), face->bin, face->nImgWidth, face->nImgHeight, 1, &face->FaceInfo[i])){
@@ -152,10 +148,6 @@ PHP_METHOD(Face, quality)
 {
     zend_long index;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
-
-    if(0 != MEXTI_G(nError)){
-        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
-    }
 
     ZEND_PARSE_PARAMETERS_START(1, 1)
         Z_PARAM_LONG(index)
@@ -184,9 +176,6 @@ PHP_METHOD(Face, feature)
     zend_long iFaceIndex;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
 
-    if(0 != MEXTI_G(nError)){
-        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
-    }
 
     ZEND_PARSE_PARAMETERS_START(1, 1)
 	Z_PARAM_LONG(iFaceIndex)
@@ -214,10 +203,6 @@ PHP_METHOD(Face, liveness)
     zend_long iFaceIndex;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
 
-    if(0 != MEXTI_G(nError)){
-        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
-    }
-
     ZEND_PARSE_PARAMETERS_START(1, 1)
 	Z_PARAM_LONG(iFaceIndex)
 	ZEND_PARSE_PARAMETERS_END();
@@ -239,6 +224,7 @@ PHP_METHOD(Face, liveness)
     RETURN_LONG(0);
 }
 
+// 静态函数.
 PHP_METHOD(Face, compare)
 {
     float score = 0;
@@ -260,6 +246,44 @@ PHP_METHOD(Face, compare)
 	RETURN_FALSE;
 }
 
+// 静态函数
+PHP_METHOD(Face, init)
+{
+    char * license;
+    size_t lLicense;
+    zend_long iSearchNum;
+    bool iSearchNum_isNull, license_isNull;
+
+    if(NULL != MEXTI_G(pAlgEngine)) {
+        RETURN_TRUE;
+    }
+
+    ZEND_PARSE_PARAMETERS_START(0, 2)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_STRING_EX(license, lLicense, license_isNull, 0)
+        Z_PARAM_LONG_EX(iSearchNum, iSearchNum_isNull, 0, 0)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if(iSearchNum_isNull || iSearchNum > 5000) {
+        iSearchNum = 5000;
+    }
+
+    if(license_isNull){
+        license = MEXTI_G(license);
+    }
+
+    if(NULL != MEXTI_G(pAlgEngine)){
+        zzFreeAlgThread(MEXTI_G(pAlgEngine));
+        MEXTI_G(pAlgEngine) = NULL;
+    }
+
+    MEXTI_G(pAlgEngine) = zzInitAlgNThread(MEXTI_G(license), iSearchNum, &MEXTI_G(nError));
+
+    if(0 != MEXTI_G(nError)){
+        zend_throw_exception(mexti_ce_FaceException, faceErrorString(MEXTI_G(nError)), MEXTI_G(nError));
+    }
+    RETURN_TRUE;
+}
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_Face___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, ImageData, IS_STRING, 0)
@@ -278,6 +302,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__quality, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, faceIndex, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__init, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static const zend_function_entry class_Face_methods[] = {
     PHP_ME(Face, __construct, arginfo_Face___construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Face, best, arginfo_Face__best, ZEND_ACC_PUBLIC)
@@ -285,6 +312,7 @@ static const zend_function_entry class_Face_methods[] = {
     PHP_ME(Face, feature, arginfo_Face__quality, ZEND_ACC_PUBLIC)
     PHP_ME(Face, liveness, arginfo_Face__quality, ZEND_ACC_PUBLIC)
     PHP_ME(Face, compare, arginfo_Face__compare, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Face, init, arginfo_Face__init, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     ZEND_FE_END
 };
 
@@ -348,6 +376,5 @@ zend_class_entry * register_class_Face()
 	zend_declare_property_long(mexti_ce_Face, ZEND_STRL("num"), 0, ZEND_ACC_READONLY | ZEND_ACC_PUBLIC);
 	zend_declare_property_long(mexti_ce_Face, ZEND_STRL("errCode"), 0, ZEND_ACC_READONLY | ZEND_ACC_PUBLIC);
 
-    MEXTI_G(pAlgEngine) = zzInitAlgNThread(MEXTI_G(license), MEXTI_G(iSearchNum), &MEXTI_G(nError));
 	return mexti_ce_Face;
 }

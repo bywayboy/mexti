@@ -19,6 +19,9 @@
 #include "lua/mexti_lua.h"
 #include "crypto/mexti_crypto.h"
 #include "face/mexti_face.h"
+#include "finger/mexti_finger.h"
+
+#include "lib/face/zzFaceDLL.h"
 
 ZEND_DECLARE_MODULE_GLOBALS(mexti)
 
@@ -39,11 +42,16 @@ PHP_MINIT_FUNCTION(mexti)
 {
 	REGISTER_INI_ENTRIES();
 	
+	MEXTI_G(pAlgEngine) = NULL;		// 算法引擎
+	MEXTI_G(nError) = 12;			// 未初始化 
+
 	register_class_Lbs();
 	register_class_HeapNode();
 	register_class_MinHeap();
 	register_class_Lua();
 	register_class_Crypto();
+	register_class_Finger();
+
 	if(MEXTI_G(faceAlgOn)){
 		php_printf("开启了人脸检测算法. 初始化算法库!\n");
 		register_class_Face();
@@ -51,6 +59,14 @@ PHP_MINIT_FUNCTION(mexti)
 		php_printf("未开启人脸检测算法库!\n");
 	}
 	return SUCCESS;
+}
+
+PHP_MSHUTDOWN_FUNCTION(mexti)
+{
+	if(NULL != MEXTI_G(pAlgEngine)){
+        zzFreeAlgThread(MEXTI_G(pAlgEngine));
+        MEXTI_G(pAlgEngine) = NULL;
+    }
 }
 
 /* {{{ PHP_RINIT_FUNCTION */
@@ -92,7 +108,7 @@ zend_module_entry mexti_module_entry = {
 	"mexti",							/* 扩展名称 */
 	ext_functions,						/* 模块函数入口 */
 	PHP_MINIT(mexti),					/* 模块初始化 */
-	NULL,								/* 模块卸载 */
+	PHP_MSHUTDOWN(mexti),				/* 模块卸载 */
 	PHP_RINIT(mexti),					/* 请求初始化 */
 	PHP_RSHUTDOWN(mexti),				/* 请求结束 */
 	PHP_MINFO(mexti),					/* 模块信息 */
