@@ -9,6 +9,8 @@
 #include "mexti_face.h"
 #include "php_mexti.h"
 
+#include "lib/crypto/xxtea.h"
+
 #include "lib/face/zzFaceDLL.h"
 #include "lib/face/mxImageTool.h"
 #include "lib/face/MXFaceInfoEx.h"
@@ -74,8 +76,8 @@ static inline mexti_face_t * mexti_face_from_obj(zend_object * obj) /* {{{ */ {
 
 PHP_METHOD(Face, __construct)
 {
-    char * image;
-	size_t limage;
+    char * image = NULL;
+	size_t limage = 0;
     zend_long maxNum;
     bool maxNum_isNull;
     mexti_face_t * face = Z_FACE_P(ZEND_THIS);
@@ -249,10 +251,10 @@ PHP_METHOD(Face, compare)
 // 静态函数
 PHP_METHOD(Face, init)
 {
-    char * license;
+    char * license = NULL;
     size_t lLicense;
     zend_long iSearchNum;
-    bool iSearchNum_isNull, license_isNull;
+    bool iSearchNum_isNull;
 
     if(NULL != MEXTI_G(pAlgEngine)) {
         RETURN_TRUE;
@@ -260,7 +262,7 @@ PHP_METHOD(Face, init)
 
     ZEND_PARSE_PARAMETERS_START(0, 2)
         Z_PARAM_OPTIONAL
-        Z_PARAM_STRING_EX(license, lLicense, license_isNull, 0)
+        Z_PARAM_STRING(license, lLicense)
         Z_PARAM_LONG_EX(iSearchNum, iSearchNum_isNull, 0, 0)
     ZEND_PARSE_PARAMETERS_END();
 
@@ -268,7 +270,7 @@ PHP_METHOD(Face, init)
         iSearchNum = 5000;
     }
 
-    if(license_isNull){
+    if(NULL == license){
         license = MEXTI_G(license);
     }
 
@@ -284,6 +286,35 @@ PHP_METHOD(Face, init)
     }
     RETURN_TRUE;
 }
+
+// 静态函数
+PHP_METHOD(Face, decode) {
+    char * buffer;
+    size_t lBuffer;
+
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+        Z_PARAM_OPTIONAL
+	    Z_PARAM_STRING(buffer, lBuffer)
+	ZEND_PARSE_PARAMETERS_END();
+
+    if(NULL == buffer || 0 == lBuffer){
+        RETURN_NULL();
+    }
+
+    if(lBuffer <= 2){
+        RETURN_STRINGL_FAST(buffer, lBuffer);
+    }
+
+    if((uint8_t)(buffer[0]) == 0xFE && (uint8_t)(buffer[1]) == 0xAA){
+        xxtea_long new_size = 0;
+		char * newImage = xxtea_decrypt_file((unsigned char *)buffer, lBuffer, &new_size);
+        RETVAL_STRINGL_FAST(newImage, new_size);
+        efree(newImage);
+        return;
+    }
+    RETVAL_STRINGL_FAST(buffer, lBuffer);
+}
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_Face___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, ImageData, IS_STRING, 0)
@@ -305,6 +336,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_Face__init, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_Face_decode, 0, 0, 1)
+    ZEND_ARG_TYPE_INFO(0, faceIndex, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+
 static const zend_function_entry class_Face_methods[] = {
     PHP_ME(Face, __construct, arginfo_Face___construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Face, best, arginfo_Face__best, ZEND_ACC_PUBLIC)
@@ -313,6 +349,7 @@ static const zend_function_entry class_Face_methods[] = {
     PHP_ME(Face, liveness, arginfo_Face__quality, ZEND_ACC_PUBLIC)
     PHP_ME(Face, compare, arginfo_Face__compare, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Face, init, arginfo_Face__init, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Face, decode, arginfo_Face_decode, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     ZEND_FE_END
 };
 
