@@ -69,7 +69,7 @@ cat  <<EOF 	>> ${PHP_CONFIG_FILE}
 
 [mexti]
 ; 是否开启人脸检测模块
-mexti.face_on = On;
+mexti.face_on = Off;
 ; 人脸检测授权模型文件位置
 mexti.face_license = "/usr/local/php/etc";
 ; 1:N 最大搜索数目

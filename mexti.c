@@ -40,10 +40,11 @@ PHP_INI_END()
 
 PHP_MINIT_FUNCTION(mexti)
 {
-	REGISTER_INI_ENTRIES();
-	
 	MEXTI_G(pAlgEngine) = NULL;		// 算法引擎
 	MEXTI_G(nError) = 12;			// 未初始化 
+	MEXTI_G(faceAlgOn) = false;		// 默认不自动启动人脸算法引擎.
+
+	REGISTER_INI_ENTRIES();
 
 	register_class_Lbs();
 	register_class_HeapNode();
