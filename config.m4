@@ -87,14 +87,14 @@ if test "$PHP_MEXTI" != "no"; then
   dnl
   dnl PHP_SUBST(MEXTI_SHARED_LIBADD)
 
-  PHP_CHECK_LIBRARY(MXFaceApiDebian7, zzInitAlgNThread,
+  PHP_CHECK_LIBRARY(MXFaceApidebian12, zzInitAlgNThread,
    [
-     PHP_ADD_LIBRARY_WITH_PATH(MXFaceApiDebian7, "", MEXTI_SHARED_LIBADD)
+     PHP_ADD_LIBRARY_WITH_PATH(MXFaceApidebian12, "", MEXTI_SHARED_LIBADD)
      AC_DEFINE(HAVE_ZZ_FACEAPI, 1, [ ])
    ],[
      AC_MSG_ERROR([FEATURE not supported by your facealg library.])
    ],[
-     -lMXFaceApiDebian7
+     -lMXFaceApidebian12
    ])
   
   PHP_CHECK_LIBRARY(mxFingerAlgLinux64, mxGetVersion_id,

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+apt -y install libgtk-3-bin
 if [ ! -f zzface.tar.gz ]; then
     wget -O zzface.tar.gz  https://exti.cc/depends/zzface.tar.gz
 fi
@@ -9,7 +9,7 @@ if [ ! -d zzface ]; then
     tar -xvf zzface.tar.gz
     cp zzface/* /lib/x86_64-linux-gnu/
     pushd  /lib/x86_64-linux-gnu
-    ln -s MXFaceApiDebian7.so libMXFaceApiDebian7.so
+    ln -s MXFaceApidebian12.so libMXFaceApidebian12.so
     popd
 fi
 
